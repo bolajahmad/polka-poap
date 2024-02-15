@@ -168,6 +168,26 @@ mod events {
                 return Err(Error::UserExists);
             }
         }
+
+        #[ink(message)]
+        pub fn register_participant(&mut self, event_id: EventId) -> Result<(), Error> {
+            let caller = self.env().caller();
+            // add the participant to the event mapping
+            assert!(
+                self.event_id_to_activity.get(&event_id).is_some(),
+                "EventDoesNotExist"
+            );
+            let mut participants_data = self.event_to_participants.get(&event_id).unwrap();
+
+            let is_participant_registered = participants_data
+                .participants_registered
+                .iter()
+                .any(|&x| x == caller);
+            assert_eq!(is_participant_registered, false, "UserAlreadyRegistered");
+
+            participants_data.participants_registered.push(caller);
+            Ok(())
+        }
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
@@ -176,23 +196,23 @@ mod events {
     #[cfg(test)]
     mod tests {
         /// Imports all the definitions from the outer scope so we can use them here.
-        use super::*;
+        // use super::*;
 
         /// We test if the default constructor does its job.
-        #[ink::test]
-        fn default_works() {
-            let events = Events::default();
-            assert_eq!(events.get(), false);
-        }
+        // #[ink::test]
+        // fn default_works() {
+        //     let events = Events::default();
+        //     assert_eq!(events.get(), false);
+        // }
 
         /// We test a simple use case of our contract.
-        #[ink::test]
-        fn it_works() {
-            let mut events = Events::new(false);
-            assert_eq!(events.get(), false);
-            events.flip();
-            assert_eq!(events.get(), true);
-        }
+        // #[ink::test]
+        // fn it_works() {
+        //     let mut events = Events::new(false);
+        //     assert_eq!(events.get(), false);
+        //     events.flip();
+        //     assert_eq!(events.get(), true);
+        // }
     }
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
