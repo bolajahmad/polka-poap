@@ -26,12 +26,10 @@ Polka POAP is a full-stack decentralized application (D'app) built for the Polka
 - UI Frontend: A user-friendly interface for interacting with the D'app.
 
 ## Installation
-
-Provide detailed instructions on how to install the D'app.
+Instructions on how to run the D'app locally.
 
 ## Usage
-
-Provide detailed instructions on how to use the D'app. Include screenshots or videos if possible.
+Demo screenshots and videos.
 
 ## Contributing
 
