@@ -195,17 +195,17 @@ mod events {
     /// The below code is technically just normal Rust code.
     #[cfg(test)]
     mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
+        // Imports all the definitions from the outer scope so we can use them here.
         // use super::*;
 
-        /// We test if the default constructor does its job.
+        // We test if the default constructor does its job.
         // #[ink::test]
         // fn default_works() {
         //     let events = Events::default();
         //     assert_eq!(events.get(), false);
         // }
 
-        /// We test a simple use case of our contract.
+        // We test a simple use case of our contract.
         // #[ink::test]
         // fn it_works() {
         //     let mut events = Events::new(false);

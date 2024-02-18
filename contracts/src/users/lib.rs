@@ -16,7 +16,9 @@
  */
 #[ink::contract]
 mod users {
+    use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
+
     pub type HashByte = Vec<u8>;
 
     #[ink(event)]
@@ -47,7 +49,7 @@ mod users {
         /// Constructors can delegate to other constructors.
         #[ink(constructor)]
         pub fn default() -> Self {
-            Self::new(Default::default())
+            Self::new()
         }
 
         /// A message that can be called on instantiated contracts.
@@ -55,13 +57,7 @@ mod users {
         /// to `false` and vice versa.
         #[ink(message)]
         pub fn flip(&mut self) {
-            self.value = !self.value;
-        }
-
-        /// Simply returns the current value of our `bool`.
-        #[ink(message)]
-        pub fn get(&self) -> bool {
-            self.value
+            self.organizers_by_id = Mapping::new();
         }
     }
 
