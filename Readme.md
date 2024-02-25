@@ -14,6 +14,7 @@ This project is build for the Polkadot ecosystem and it is dependent on PSP34 pr
 - [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
+- [Our Stack](#stack)
 
 ## About
 
@@ -38,3 +39,5 @@ If you want to contribute to this project, please follow these [guidelines](CONT
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+## Our Stack
