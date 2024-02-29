@@ -3,7 +3,8 @@
 import { env } from "@/config/environment"
 import { UseInkathonProvider } from "@scio-labs/use-inkathon"
 import { PropsWithChildren } from "react"
-import { getDeployments } from "../[utils]/deployments"
+import { getDeployments } from "../(utils)/deployments"
+import Web3AuthProvider from "./(web3-auth-provider)/web3-auth-provider"
 
 export default function ClientProviders({ children }: PropsWithChildren) {
     return (
@@ -13,7 +14,7 @@ export default function ClientProviders({ children }: PropsWithChildren) {
             defaultChain={env.defaultChain} 
             deployments={getDeployments()}
         >
-            {children}
+            <Web3AuthProvider>{children}</Web3AuthProvider>
         </UseInkathonProvider>
     )
 }

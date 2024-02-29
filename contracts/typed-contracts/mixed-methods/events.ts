@@ -55,6 +55,21 @@ export default class Methods {
 	}
 
 	/**
+	* registerParticipant
+	*
+	* @param { (number | string | BN) } eventId,
+	* @returns { void }
+	*/
+	"registerParticipant" (
+		eventId: (number | string | BN),
+		__options: GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerParticipant", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [eventId], __options);
+	}
+
+	/**
 	* createNewEvent
 	*
 	* @param { (number | string | BN) } collectionId,
@@ -91,16 +106,31 @@ export default class Methods {
 	}
 
 	/**
-	* registerParticipant
+	* registerForEvent
 	*
 	* @param { (number | string | BN) } eventId,
 	* @returns { void }
 	*/
-	"registerParticipant" (
+	"registerForEvent" (
+		eventId: (number | string | BN),
+		__options: GasLimitAndRequiredValue,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerForEvent", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [eventId], __options);
+	}
+
+	/**
+	* registerAttendanceOfEvent
+	*
+	* @param { (number | string | BN) } eventId,
+	* @returns { void }
+	*/
+	"registerAttendanceOfEvent" (
 		eventId: (number | string | BN),
 		__options: GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerParticipant", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerAttendanceOfEvent", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [eventId], __options);
 	}

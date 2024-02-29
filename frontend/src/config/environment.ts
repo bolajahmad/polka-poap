@@ -11,4 +11,6 @@ export const env = {
 
   defaultChain: process.env.NEXT_PUBLIC_DEFAULT_CHAIN!,
   supportedChains: getSupportedChains(),
+
+  web3AuthID: process.env.NEXT_PUBLIC_WEB3_AUTH_CLIENT_ID!,
 }

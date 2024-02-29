@@ -5,11 +5,22 @@ mod events {
     use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
 
+    #[ink(event)]
+    pub struct ActivityUpdated {
+        #[ink(topic)]
+        updated_by: AccountId,
+        #[ink(topic)]
+        event_id: u64,
+        updated_when: u32,
+        last_updated: u32,
+        mint_date: Option<u64>,
+    }
+
     #[derive(Copy, Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
     pub enum Error {
         UserExists,
-        CollectionAlreadyCreated,
+        CollectionAlreadyCreated, 
     }
 
     pub type HashByte = Vec<u8>;
@@ -105,6 +116,26 @@ mod events {
         }
 
         #[ink(message)]
+        pub fn register_participant(&mut self, event_id: EventId) -> Result<(), Error> {
+            let caller = self.env().caller();
+            // add the participant to the event mapping
+            assert!(
+                self.event_id_to_activity.get(&event_id).is_some(),
+                "EventDoesNotExist"
+            );
+            let mut participants_data = self.event_to_participants.get(&event_id).unwrap();
+
+            let is_participant_registered = participants_data
+                .participants_registered
+                .iter()
+                .any(|&x| x == caller);
+            assert_eq!(is_participant_registered, false, "UserAlreadyRegistered");
+
+            participants_data.participants_registered.push(caller);
+            Ok(())
+        }
+  
+        #[ink(message)]
         pub fn create_new_event(
             &mut self,
             collection_id: u8,
@@ -145,6 +176,13 @@ mod events {
                         .insert(event.event_id, &participants);
                     self.event_id_to_activity.insert(event.event_id, &event);
                     self.event_count = self.event_count + 1;
+                    self.env().emit_event(ActivityUpdated {
+                        updated_by: caller,
+                        event_id: event.event_id,
+                        mint_date: None,
+                        updated_when: current_block,
+                        last_updated: current_block,
+                    });
                     Ok(())
                 }
             }
@@ -153,6 +191,7 @@ mod events {
         #[ink(message)]
         pub fn update_mint_date(&mut self, mint_date: u64, event_id: EventId) -> Result<(), Error> {
             let caller = self.env().caller();
+            let current_block = self.env().block_number();
             let organizer = self.organizers.get(caller);
             let selected_event = self.event_id_to_activity.get(&event_id);
             assert!(
@@ -163,30 +202,56 @@ mod events {
             if organizer.is_some() {
                 let mut event = selected_event.unwrap();
                 event.mint_date = mint_date;
+                self.env().emit_event(ActivityUpdated {
+                    updated_by: caller,
+                    event_id: event_id,
+                    mint_date: Some(mint_date),
+                    updated_when: current_block,
+                    last_updated: event.block_created,
+                });
                 Ok(())
             } else {
                 return Err(Error::UserExists);
             }
         }
 
-        #[ink(message)]
-        pub fn register_participant(&mut self, event_id: EventId) -> Result<(), Error> {
+        #[ink(message, payable)]
+        pub fn register_for_event(&mut self, event_id: EventId) -> Result<(), Error> {
             let caller = self.env().caller();
-            // add the participant to the event mapping
+            let current_block = self.env().block_number();
+            let selected_event = self.event_id_to_activity.get(&event_id);
             assert!(
-                self.event_id_to_activity.get(&event_id).is_some(),
+                event_id <= self.event_count && selected_event.is_some(),
                 "EventDoesNotExist"
             );
             let mut participants_data = self.event_to_participants.get(&event_id).unwrap();
-
             let is_participant_registered = participants_data
                 .participants_registered
                 .iter()
                 .any(|&x| x == caller);
             assert_eq!(is_participant_registered, false, "UserAlreadyRegistered");
-
             participants_data.participants_registered.push(caller);
             Ok(())
+        }
+
+        #[ink(message)]
+        pub fn register_attendance_of_event(&mut self, event_id: EventId) -> Result<(), Error> {
+            let caller = self.env().caller();
+            let current_block = self.env().block_number();
+            let selected_event = self.event_id_to_activity.get(&event_id);
+            assert!(
+                event_id <= self.event_count && selected_event.is_some(),
+                "EventDoesNotExist"
+            );
+
+            let mut participants_data = self.event_to_participants.get(&event_id).unwrap();
+            let is_attending = participants_data.participants_attended.iter().any(|&x| x == caller);
+            if is_attending {
+                return Ok(())
+            } else {
+                participants_data.participants_attended.push(caller);
+                Ok(())
+            }
         }
     }
 

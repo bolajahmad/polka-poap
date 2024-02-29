@@ -1,6 +1,7 @@
 import { env } from "@/config/environment";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { PageLayout } from "./(components)/(shared)/RootLayout";
 import { ToastConfig } from "./(components)/(toasts)/toast-config";
 import { TooltipProvider } from "./(components)/(ui)/tooltip";
 import ClientProviders from "./(context)/providers";
@@ -42,7 +43,11 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <ClientProviders>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <PageLayout>
+              {children}
+            </PageLayout>
+          </TooltipProvider>
           <ToastConfig />
           </ClientProviders>  
       </body>

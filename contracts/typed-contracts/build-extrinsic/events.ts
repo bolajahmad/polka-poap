@@ -35,6 +35,18 @@ export default class Methods {
 	}
 
 	/**
+	 * registerParticipant
+	 *
+	 * @param { (number | string | BN) } eventId,
+	*/
+	"registerParticipant" (
+		eventId: (number | string | BN),
+		__options: GasLimit,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerParticipant", [eventId], __options);
+	}
+
+	/**
 	 * createNewEvent
 	 *
 	 * @param { (number | string | BN) } collectionId,
@@ -65,15 +77,27 @@ export default class Methods {
 	}
 
 	/**
-	 * registerParticipant
+	 * registerForEvent
 	 *
 	 * @param { (number | string | BN) } eventId,
 	*/
-	"registerParticipant" (
+	"registerForEvent" (
+		eventId: (number | string | BN),
+		__options: GasLimitAndRequiredValue,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerForEvent", [eventId], __options);
+	}
+
+	/**
+	 * registerAttendanceOfEvent
+	 *
+	 * @param { (number | string | BN) } eventId,
+	*/
+	"registerAttendanceOfEvent" (
 		eventId: (number | string | BN),
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerParticipant", [eventId], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerAttendanceOfEvent", [eventId], __options);
 	}
 
 }
