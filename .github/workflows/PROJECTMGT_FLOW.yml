@@ -7,17 +7,38 @@
 # To get a newer version, you will need to update the SHA.
 # You can also reference a tag or branch, but the action may change without warning.
 
-name: Move assigned card
-on:
-  issues:
-    types:
-      - assigned
+# name: Move assigned card
+# on:
+#   issues:
+#     types:
+#       - assigned
+# jobs:
+#   move-assigned-card:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: alex-page/github-project-automation-plus@v0.8.3
+#         with:
+#           project: Polka POAP
+#           column: In Progress
+#           repo-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+name: Add a new GitHub Project card linked to aan assigned GitHub issue to the in progress project column
+on: [issues, pull_request]
 jobs:
-  move-assigned-card:
+  github-actions-automate-projects:
     runs-on: ubuntu-latest
     steps:
-      - uses: alex-page/github-project-automation-plus@v0.8.3
-        with:
-          project: Polka POAP
-          column: Progress
-          repo-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+    - name: add-new-issues-to-repository-based-project-column
+      uses: docker://takanabe/github-actions-automate-projects:v0.0.1
+      if: github.event_name == 'issues' && github.event.action == 'assigned'
+      env:
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        GITHUB_PROJECT_URL: https://github.com/bolajahmad/polka-poap
+        GITHUB_PROJECT_COLUMN_NAME: In Progress
+    - name: add-new-prs-to-repository-based-project-column
+      uses: docker://takanabe/github-actions-automate-projects:v0.0.1
+      if: github.event_name == 'pull_request' && github.event.action == 'assigned'
+      env:
+        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        GITHUB_PROJECT_URL: https://github.com/bolajahmad/polka-poap
+        GITHUB_PROJECT_COLUMN_NAME: In Progress
