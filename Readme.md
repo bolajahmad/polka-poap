@@ -26,9 +26,6 @@ Polka POAP is a full-stack decentralized application (D'app) built for the Polka
 - Event Organizers Flow: Event organizers can create events, manage attendees, and distribute POAP tokens.
 - UI Frontend: A user-friendly interface for interacting with the D'app.
 
-## Installation
-Instructions on how to run the D'app locally.
-
 ## Usage
 Demo screenshots and videos.
 
