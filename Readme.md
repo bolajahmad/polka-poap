@@ -10,7 +10,6 @@ This project is build for the Polkadot ecosystem and it is dependent on PSP34 pr
 
 - [About](#about)
 - [Features](#features)
-- [Usage](#usage)
 - [Contributing](#contributing)
 - [License](#license)
 - [Our Stack](#stack)
@@ -24,9 +23,6 @@ Polka POAP is a full-stack decentralized application (D'app) built for the Polka
 - User Flow: Users can register for events, check-in, and receive POAP tokens.
 - Event Organizers Flow: Event organizers can create events, manage attendees, and distribute POAP tokens.
 - UI Frontend: A user-friendly interface for interacting with the D'app.
-
-## Usage
-Demo screenshots and videos.
 
 ## Contributing
 
