@@ -44,4 +44,3 @@ git push origin <your branch name>
 # An example:
 git push origin flex_exercises
 ```
-```bash
