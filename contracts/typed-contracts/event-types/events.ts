@@ -4,7 +4,7 @@ import type * as ReturnTypes from '../types-returns/events';
 export interface ActivityUpdated {
 	updatedBy: ReturnTypes.AccountId;
 	eventId: number;
-	updatedWhen: number;
+	eventDate: number;
 	lastUpdated: number;
 	mintDate: number | null;
 }

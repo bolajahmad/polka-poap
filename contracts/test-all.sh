@@ -5,7 +5,8 @@ set -eu
 CONTRACTS_DIR="${CONTRACTS_DIR:=./src}" # Base contract directory 
 
 # Determine all contracts under `$CONTRACTS_DIR`
-contracts=($(find $CONTRACTS_DIR -maxdepth 1 -type d -exec test -f {}/Cargo.toml \; -print | xargs -n 1 basename))
+# contracts=($(find $CONTRACTS_DIR -maxdepth 1 -type d -exec test -f {}/Cargo.toml \; -print | xargs -n 1 basename))
+contracts=( "events" )
 
 # Test all contracts
 for i in "${contracts[@]}"

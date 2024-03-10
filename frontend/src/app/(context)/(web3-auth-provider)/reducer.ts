@@ -1,8 +1,8 @@
-import { Nullish, OpenloginUserInfo } from "@/types";
+import { Nullish, OpenloginUserInfo } from "@/models/contract-types";
 import { type IProvider } from "@web3auth/base";
 import { Web3Auth } from "@web3auth/modal";
 
-type ActionType = "SET_WEB3_AUTH" | "SET_LOGIN_USER" | "SET_PRIVATE_KEY";
+type ActionType = "SET_WEB3_AUTH" | "SET_LOGIN_USER" | "SET_PRIVATE_KEY" | "LOGOUT_USER";
 
 export type Action = { type: string, payload: undefined } | { type: ActionType, payload: Record<string, any> };
 
@@ -31,17 +31,20 @@ export function reducer(_state: any, { type, payload }: Action): IWeb3AuthContex
             return {
                 ..._state,
                 provider: payload?.provider,
-                userInfo: payload?.loggedInUser,
+                userInfo: payload?.userInfo,
             }
         }
         case "SET_PRIVATE_KEY": {
             return {
                 ..._state,
-                userInfo: {
-                    ..._state.userInfo,
+                userInfo: Object.assign(_state.userInfo, {
                     walletAddress: payload?.walletAddress,
-                    encodedSecretKey: payload?.encodedSecretKey
-                }
+                    encodedSecretKey: payload?.encodedSecretKey})
+            }
+        }
+        case "LOGOUT_USER": {
+            return {
+                ...initialState,
             }
         }
         default:

@@ -4,6 +4,8 @@
 mod events {
     use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
+    use ink::env::call::{build_call, ExecutionInput, Selector};
+    use ink::env::DefaultEnvironment;
 
     #[ink(event)]
     pub struct ActivityUpdated {
@@ -11,7 +13,7 @@ mod events {
         updated_by: AccountId,
         #[ink(topic)]
         event_id: u64,
-        updated_when: u32,
+        event_date: u64,
         last_updated: u32,
         mint_date: Option<u64>,
     }
@@ -21,10 +23,12 @@ mod events {
     pub enum Error {
         UserExists,
         CollectionAlreadyCreated, 
+        TokenMintingFailed,
     }
 
     pub type HashByte = Vec<u8>;
     pub type EventId = u64;
+    pub type ContentIdentifier = u8;
 
     #[derive(scale::Encode, scale::Decode)]
     #[cfg_attr(
@@ -74,34 +78,36 @@ mod events {
         event_count: u64,
         event_id_to_activity: Mapping<EventId, Activity>,
         collection_ids: Vec<u8>,
-        /// Stores a single `bool` value on the storage.
-        value: bool,
         /// Stores a list of organizers on the platform
         organizers: Mapping<AccountId, HashByte>,
         event_to_participants: Mapping<EventId, EventParticipants>,
+        // the poap NFT contract
+        polkapoap: AccountId
     }
 
     impl Events {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(init_value: bool) -> Self {
+        pub fn new(polkapoap: AccountId) -> Self {
             let organizers = Mapping::new();
             Self {
-                value: init_value,
                 organizers,
                 event_count: 0,
                 collection_ids: Vec::new(),
                 event_id_to_activity: Mapping::new(),
                 event_to_participants: Mapping::new(),
+                polkapoap
             }
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new(Default::default())
+        #[ink(message)]
+        pub fn update_token_contract(&mut self, token: AccountId) {
+            self.polkapoap = token;
+        }
+
+        #[ink(message)]
+        pub fn get_token_contract(&self) -> AccountId {
+            self.polkapoap
         }
 
         #[ink(message)]
@@ -115,6 +121,10 @@ mod events {
             self.organizers.insert(organizer_id, &username);
         }
 
+        #[ink(message)]
+        pub fn get_organizer(&self, organizer_id: AccountId) -> HashByte {
+            self.organizers.get(&organizer_id).unwrap()
+        }
         #[ink(message)]
         pub fn register_participant(&mut self, event_id: EventId) -> Result<(), Error> {
             let caller = self.env().caller();
@@ -180,7 +190,7 @@ mod events {
                         updated_by: caller,
                         event_id: event.event_id,
                         mint_date: None,
-                        updated_when: current_block,
+                        event_date,
                         last_updated: current_block,
                     });
                     Ok(())
@@ -188,6 +198,10 @@ mod events {
             }
         }
 
+        #[ink(message)]
+        pub fn get_event_data(&self, event_id: EventId) -> Activity {
+            self.event_id_to_activity.get(&event_id).unwrap()
+        }
         #[ink(message)]
         pub fn update_mint_date(&mut self, mint_date: u64, event_id: EventId) -> Result<(), Error> {
             let caller = self.env().caller();
@@ -206,7 +220,7 @@ mod events {
                     updated_by: caller,
                     event_id: event_id,
                     mint_date: Some(mint_date),
-                    updated_when: current_block,
+                    event_date: event.event_date,
                     last_updated: event.block_created,
                 });
                 Ok(())
@@ -216,7 +230,7 @@ mod events {
         }
 
         #[ink(message, payable)]
-        pub fn register_for_event(&mut self, event_id: EventId) -> Result<(), Error> {
+        pub fn register_participant_for_event(&mut self, event_id: EventId) -> Result<(), Error> {
             let caller = self.env().caller();
             let current_block = self.env().block_number();
             let selected_event = self.event_id_to_activity.get(&event_id);
@@ -253,6 +267,84 @@ mod events {
                 Ok(())
             }
         }
+
+        /// Generate a token for the caller_address
+        #[ink(message)]
+        pub fn mint_event_token(&mut self, event_id: EventId) -> Result<(), Error> {
+            let caller = self.env().caller();
+            self.ensure_participant_attend(&event_id, &caller);
+            self.ensure_its_mint_date(&event_id);
+            self.ensure_has_not_minted(&event_id, &caller);
+
+            let selected_activity = self.event_id_to_activity.get(&event_id).unwrap();
+            self.is_new_collection(selected_activity.collection_id);
+
+            /// mint NFT to user
+            let result = self.execute_mint_message(caller, selected_activity.collection_id);
+            match result {
+                true => {
+                    let mut event_participants = self.event_to_participants.get(&event_id).unwrap();
+                    event_participants.participants_minted.push(caller);
+                    self.collection_ids.push(selected_activity.collection_id);
+                    Ok(())
+                }, 
+                false => Err(Error::TokenMintingFailed)
+            }
+        }
+
+        #[ink(message)]
+        pub fn get_event_participants(&self, event_id: EventId) -> EventParticipants {
+            self.event_to_participants.get(&event_id).unwrap()
+        }
+
+        pub fn is_new_collection(&self, collection_id: ContentIdentifier, ) -> bool {
+            let collection_exists = self
+                .collection_ids
+                .iter()
+                .find(|collection: &&u8| collection == &&collection_id);
+
+            match collection_exists {
+                Some(_) => true,
+                None => false
+            }
+        }
+
+        pub fn execute_mint_message(
+            &self,
+            owner: AccountId,
+            proposal_cid: ContentIdentifier,
+        ) -> bool {
+            let mint_result = build_call::<DefaultEnvironment>()
+                .call(self.polkapoap)
+                .gas_limit(0)
+                .exec_input(
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!("mint_property")))
+                        .push_arg(&owner)
+                        .push_arg(&proposal_cid),
+                )
+                .returns::<()>()
+                .try_invoke();
+
+            match mint_result {
+                Ok(Ok(_)) => true,
+                _ => false,
+            }
+        }
+
+        /// Panic if it's not the mint_date yet
+        fn ensure_its_mint_date(&self, event_id: &EventId) {
+            assert!(self.event_id_to_activity.get(&event_id).unwrap().mint_date >= self.env().block_number() as u64, "UnableToMintPOAP")
+        }
+
+        fn ensure_participant_attend(&self, event_id: &EventId, participant: &AccountId) {
+            let participants = self.event_to_participants.get(&event_id).unwrap();
+            assert!(participants.participants_attended.iter().any(|&x| x == *participant), "UserNotAttended")
+        }
+
+        fn ensure_has_not_minted(&self, event_id: &EventId, participant: &AccountId) {
+            let participants = self.event_to_participants.get(&event_id).unwrap();
+            assert!(!participants.participants_minted.iter().any(|&x| x == *participant), "UserAlreadyMinted")
+        }
     }
 
     /// Unit tests in Rust are normally defined within such a `#[cfg(test)]`
@@ -261,23 +353,29 @@ mod events {
     #[cfg(test)]
     mod tests {
         // Imports all the definitions from the outer scope so we can use them here.
-        // use super::*;
+        use super::*;
+        use ink::prelude::vec::Vec;
+        
+        const polkapoap_address: AccountId = AccountId::from([0x1; 32]);
 
-        // We test if the default constructor does its job.
-        // #[ink::test]
-        // fn default_works() {
-        //     let events = Events::default();
-        //     assert_eq!(events.get(), false);
-        // }
+        /// We test if the default constructor does its job.
+        #[ink::test]
+        fn constructor_works() {
+            let events = Events::new(polkapoap_address);
+            assert_eq!(events.get_token_contract(), polkapoap_address);
+        }
 
         // We test a simple use case of our contract.
-        // #[ink::test]
-        // fn it_works() {
-        //     let mut events = Events::new(false);
-        //     assert_eq!(events.get(), false);
-        //     events.flip();
-        //     assert_eq!(events.get(), true);
-        // }
+        #[ink::test]
+        fn register_user_works() {
+            let mut events = Events::new(polkapoap_address);
+
+            let organizer_address = AccountId::from("3PxAXgPUXzus5Vf6Hf2R1n8D6dL3V1X1PVHHtjTNwAKEMv7K");
+            events.register_organizer(organizer_address, "123456");
+            assert_eq!(events.get_organizer(organizer_address), "123456");
+            // events.flip();
+            // assert_eq!(events.get(), true);
+        }
     }
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.

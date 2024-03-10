@@ -1,0 +1,33 @@
+[package]
+name = "polkapoap"
+version = "0.2.1"
+edition = "2021"
+authors = ["Bolaji Ahmad"]
+homepage = "https://github.com/bolajahmad/polka-poap"
+repository = "https://github.com/Cardinal-Cryptography/PSP34"
+readme = "README.md"
+description = "Minimal NFT implementation of mintable POAP tokens in ink!"
+exclude = [".github/*"]
+keywords = ["smart-contract", "token", "PSP34", "ink"]
+categories = ["cryptography::cryptocurrencies", "wasm"]
+
+[dependencies]
+ink = { version = "4.3", default-features = false }
+
+scale = { package = "parity-scale-codec", version = "3", default-features = false, features = [
+    "derive",
+] }
+scale-info = { version = "2.9", default-features = false, features = [
+    "derive",
+], optional = true }
+
+[lib]
+path = "lib.rs"
+
+[features]
+default = ["std"]
+std = ["ink/std", "scale/std", "scale-info/std"]
+
+enumerable = []
+contract = []
+ink-as-dependency = []

@@ -16,7 +16,7 @@ contracts=( "events" )
 for i in "${contracts[@]}"
 do
   echo -e "\nBuilding '$CONTRACTS_DIR/$i/Cargo.toml'…"
-  cargo contract build --release --quiet --manifest-path $CONTRACTS_DIR/$i/Cargo.toml
+  cargo contract build --release --verbose --manifest-path $CONTRACTS_DIR/$i/Cargo.toml
 
   echo "Copying build files to '$DIR/$i/'…"
   mkdir -p $DIR/$i

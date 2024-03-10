@@ -1,4 +1,5 @@
 import { env } from "@/config/environment";
+import { Signer } from "@/models/contract-types";
 import { type SafeEventEmitterProvider } from "@web3auth/base";
 import { CommonPrivateKeyProvider } from "@web3auth/base-provider";
 import { type Web3Auth } from "@web3auth/modal";
@@ -72,5 +73,22 @@ export class SubstrateRPC {
       console.error(error)
       return {}
     }
+  }
+
+  private async getKeyring() {
+    const { Keyring } = await import('@polkadot/keyring')
+    const { cryptoWaitReady } = await import('@polkadot/util-crypto')
+    await cryptoWaitReady()
+  
+    const keyring = new Keyring({ type: 'sr25519' })
+    return keyring
+  }
+
+  async deriveSignerFromWallet(secretKey: string): Promise<Signer> {
+    const keyring = await this.getKeyring()
+
+    const secret = Buffer.from(secretKey, 'hex')
+    const signer = keyring.addFromSeed(secret, {}, 'sr25519')
+    return signer
   }
 }

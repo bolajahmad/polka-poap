@@ -21,6 +21,28 @@ export default class Methods {
 		this.__apiPromise = apiPromise;
 	}
 	/**
+	 * updateTokenContract
+	 *
+	 * @param { ArgumentTypes.AccountId } token,
+	*/
+	"updateTokenContract" (
+		token: ArgumentTypes.AccountId,
+		__options: GasLimit,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateTokenContract", [token], __options);
+	}
+
+	/**
+	 * getTokenContract
+	 *
+	*/
+	"getTokenContract" (
+		__options: GasLimit,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "getTokenContract", [], __options);
+	}
+
+	/**
 	 * registerOrganizer
 	 *
 	 * @param { ArgumentTypes.AccountId } organizerId,
@@ -32,6 +54,18 @@ export default class Methods {
 		__options: GasLimit,
 	){
 		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerOrganizer", [organizerId, username], __options);
+	}
+
+	/**
+	 * getOrganizer
+	 *
+	 * @param { ArgumentTypes.AccountId } organizerId,
+	*/
+	"getOrganizer" (
+		organizerId: ArgumentTypes.AccountId,
+		__options: GasLimit,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "getOrganizer", [organizerId], __options);
 	}
 
 	/**
@@ -63,6 +97,18 @@ export default class Methods {
 	}
 
 	/**
+	 * getEventData
+	 *
+	 * @param { (number | string | BN) } eventId,
+	*/
+	"getEventData" (
+		eventId: (number | string | BN),
+		__options: GasLimit,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "getEventData", [eventId], __options);
+	}
+
+	/**
 	 * updateMintDate
 	 *
 	 * @param { (number | string | BN) } mintDate,
@@ -77,15 +123,15 @@ export default class Methods {
 	}
 
 	/**
-	 * registerForEvent
+	 * registerParticipantForEvent
 	 *
 	 * @param { (number | string | BN) } eventId,
 	*/
-	"registerForEvent" (
+	"registerParticipantForEvent" (
 		eventId: (number | string | BN),
 		__options: GasLimitAndRequiredValue,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerForEvent", [eventId], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerParticipantForEvent", [eventId], __options);
 	}
 
 	/**
@@ -98,6 +144,30 @@ export default class Methods {
 		__options: GasLimit,
 	){
 		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerAttendanceOfEvent", [eventId], __options);
+	}
+
+	/**
+	 * mintEventToken
+	 *
+	 * @param { (number | string | BN) } eventId,
+	*/
+	"mintEventToken" (
+		eventId: (number | string | BN),
+		__options: GasLimit,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "mintEventToken", [eventId], __options);
+	}
+
+	/**
+	 * getEventParticipants
+	 *
+	 * @param { (number | string | BN) } eventId,
+	*/
+	"getEventParticipants" (
+		eventId: (number | string | BN),
+		__options: GasLimit,
+	){
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "getEventParticipants", [eventId], __options);
 	}
 
 }

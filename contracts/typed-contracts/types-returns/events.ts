@@ -9,6 +9,22 @@ export enum LangError {
 
 export enum Error {
 	userExists = 'UserExists',
-	collectionAlreadyCreated = 'CollectionAlreadyCreated'
+	collectionAlreadyCreated = 'CollectionAlreadyCreated',
+	tokenMintingFailed = 'TokenMintingFailed'
+}
+
+export type Activity = {
+	eventDate: number,
+	eventId: number,
+	blockCreated: number,
+	collectionId: number,
+	createdBy: AccountId,
+	mintDate: number
+}
+
+export type EventParticipants = {
+	participantsRegistered: Array<AccountId>,
+	participantsAttended: Array<AccountId>,
+	participantsMinted: Array<AccountId>
 }
 

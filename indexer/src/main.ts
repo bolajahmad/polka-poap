@@ -11,12 +11,15 @@ processor.run(new TypeormDatabase({ supportHotBlocks: true }), async (ctx) => {
   const txs: ActivityRecord[] = getActivityRecords(ctx)
   console.log({ txs })
 
+  const activities = await createOrUpdateEvents(ctx, txs)
+
   // const owners: Map<string, Owner> = await createOwners(ctx, txs)
   // const transfers: Transfer[] = createTransfers(txs, owners)
 
+  console.log({ activities })
   // await ctx.store.upsert([...owners.values()])
   if (txs && txs.length) {
-    await ctx.store.insert([])
+    await ctx.store.save(activities)
   }
 })
 
@@ -25,9 +28,7 @@ function getActivityRecords(ctx: ProcessorContext<Store>): ActivityRecord[] {
   for (const block of ctx.blocks) {
     assert(block.header.timestamp, `Block ${block.header.height} had no timestamp`)
     for (const event of block.events) {
-      console.log({ event, args: event.args })
       if (!!event.name) {
-        console.log({ event })
         const decodedEvent = events.decodeEvent(event.args.data)
         console.log({ decodedEvent })
         if (decodedEvent.__kind === 'ActivityUpdated') {
@@ -69,16 +70,17 @@ async function createOrUpdateEvents(
   //   @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
   //   mintDate!: bigint
   let activitiesToReturn: Activity[] = []
-  activities.forEach(async ({ eventId, id, updatedWhen, updatedBy }) => {
+  for (const { eventId, id, updatedWhen, updatedBy, mintDate } of activities) {
     const activity = new Activity({
       id,
       eventId,
       organizer: await ctx.store.findBy(Organizer, { account: updatedBy }).then((org) => org[0]),
       createdAt: BigInt(updatedWhen?.getTime() || 0),
+      mintDate: BigInt((mintDate as Date)?.getTime() || 0n),
     })
-
     activitiesToReturn.push(activity)
-  })
+  }
+  console.log({ activitiesToReturn })
 
   return activitiesToReturn
 }

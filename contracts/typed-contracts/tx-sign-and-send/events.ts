@@ -29,6 +29,32 @@ export default class Methods {
 	}
 
 	/**
+	* updateTokenContract
+	*
+	* @param { ArgumentTypes.AccountId } token,
+	*/
+	"updateTokenContract" (
+		token: ArgumentTypes.AccountId,
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateTokenContract", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [token], __options);
+	}
+
+	/**
+	* getTokenContract
+	*
+	*/
+	"getTokenContract" (
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "getTokenContract", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [], __options);
+	}
+
+	/**
 	* registerOrganizer
 	*
 	* @param { ArgumentTypes.AccountId } organizerId,
@@ -42,6 +68,20 @@ export default class Methods {
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerOrganizer", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [organizerId, username], __options);
+	}
+
+	/**
+	* getOrganizer
+	*
+	* @param { ArgumentTypes.AccountId } organizerId,
+	*/
+	"getOrganizer" (
+		organizerId: ArgumentTypes.AccountId,
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "getOrganizer", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [organizerId], __options);
 	}
 
 	/**
@@ -77,6 +117,20 @@ export default class Methods {
 	}
 
 	/**
+	* getEventData
+	*
+	* @param { (number | string | BN) } eventId,
+	*/
+	"getEventData" (
+		eventId: (number | string | BN),
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "getEventData", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [eventId], __options);
+	}
+
+	/**
 	* updateMintDate
 	*
 	* @param { (number | string | BN) } mintDate,
@@ -93,15 +147,15 @@ export default class Methods {
 	}
 
 	/**
-	* registerForEvent
+	* registerParticipantForEvent
 	*
 	* @param { (number | string | BN) } eventId,
 	*/
-	"registerForEvent" (
+	"registerParticipantForEvent" (
 		eventId: (number | string | BN),
 		__options ? : GasLimitAndRequiredValue,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerForEvent", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerParticipantForEvent", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [eventId], __options);
 	}
@@ -116,6 +170,34 @@ export default class Methods {
 		__options ? : GasLimit,
 	){
 		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerAttendanceOfEvent", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [eventId], __options);
+	}
+
+	/**
+	* mintEventToken
+	*
+	* @param { (number | string | BN) } eventId,
+	*/
+	"mintEventToken" (
+		eventId: (number | string | BN),
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "mintEventToken", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [eventId], __options);
+	}
+
+	/**
+	* getEventParticipants
+	*
+	* @param { (number | string | BN) } eventId,
+	*/
+	"getEventParticipants" (
+		eventId: (number | string | BN),
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "getEventParticipants", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
 		}, [eventId], __options);
 	}

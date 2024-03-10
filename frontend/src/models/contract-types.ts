@@ -1,3 +1,5 @@
+import type { Keyring } from '@polkadot/keyring';
+
 export type OpenloginUserInfo = {
     email?: string;
     name?: string;
@@ -5,7 +7,6 @@ export type OpenloginUserInfo = {
     aggregateVerifier?: string;
     verifier: string;
     verifierId: string;
-    typeOfLogin: LOGIN_PROVIDER_TYPE | CUSTOM_LOGIN_PROVIDER_TYPE;
     dappShare?: string;
     /**
      * Token issued by Web3Auth.
@@ -28,4 +29,11 @@ export type OpenloginUserInfo = {
     encodedSecretKey?: string;
 };
 
-export type Nullish<T> = T | null | undefined | NaN;
+export type Signer = ReturnType<Keyring['addFromSeed']>
+
+export type Nullish<T> = T | null | undefined;
+
+export enum AllowedUsers {
+    Organizer = 'Organizer',
+    Participant = 'Participant',
+};
