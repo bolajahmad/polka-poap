@@ -1,0 +1,34 @@
+type Organizer @entity {
+  id: ID!
+  activities: [Activity!] @derivedFrom(field: "organizer")
+  collections: [Collection!] @derivedFrom(field: "createdBy")
+  username: String!
+  account: String! @index
+}
+
+# type Participant @entity {
+#   id: ID!
+#   eventsRegistered: [Activity]
+#   eventsAttended: [Activity]
+#   collections: [Collection!] @derivedFrom(field: "collectionId")
+#   username: String!
+#   account: String! @index
+# }
+
+type Activity @entity {
+  id: ID!
+  eventId: BigInt! @index
+  organizer: Organizer!
+  collection: Collection!
+  createdAt: BigInt!
+  mintDate: BigInt!
+}
+
+type Collection @entity {
+  id: ID!
+  collectionId: BigInt! @index
+  createdBy: Organizer!
+  mintedAt: BigInt!
+  event: Activity!
+  collectionHash: String!
+}

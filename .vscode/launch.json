@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    {
+      "type": "chrome",
+      "name": "http://localhost:4354/graphql",
+      "request": "launch",
+      "url": "http://localhost:4354/graphql"
+    }
+  ]
+}
