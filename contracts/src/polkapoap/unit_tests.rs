@@ -53,7 +53,7 @@ macro_rules! tests {
                     panic!("Event is not Approval")
                 }
             }
-            
+
             fn set_caller(sender: AccountId) {
                 ink::env::test::set_caller::<E>(sender);
             }
@@ -116,7 +116,7 @@ macro_rules! tests {
             }
 
             #[ink::test]
-            fn transfer_emits_event() {                
+            fn transfer_emits_event() {
                 let accounts = default_accounts::<E>();
                 let start = recorded_events().count();
                 // Create a new contract instance.
@@ -133,7 +133,7 @@ macro_rules! tests {
                 assert_eq!(
                     token.transfer(accounts.bob, Id::U8(1), vec![u8::default()]),
                     Ok(())
-                );                
+                );
                 // The second Transfer event takes place
                 assert_eq!(2, recorded_events().count());
                 // The correct event emited
@@ -197,7 +197,7 @@ macro_rules! tests {
             }
 
             #[ink::test]
-            fn approve_emits_event() {                
+            fn approve_emits_event() {
                 let accounts = default_accounts::<E>();
                 let start = recorded_events().count();
                 // Create a new contract instance.
