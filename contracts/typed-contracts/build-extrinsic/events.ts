@@ -71,13 +71,15 @@ export default class Methods {
 	/**
 	 * registerParticipant
 	 *
-	 * @param { (number | string | BN) } eventId,
+	 * @param { ArgumentTypes.AccountId } participantId,
+	 * @param { Array<(number | string | BN)> } username,
 	*/
 	"registerParticipant" (
-		eventId: (number | string | BN),
+		participantId: ArgumentTypes.AccountId,
+		username: Array<(number | string | BN)>,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerParticipant", [eventId], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerParticipant", [participantId, username], __options);
 	}
 
 	/**

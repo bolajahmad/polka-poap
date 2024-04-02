@@ -27,3 +27,8 @@ export type EventParticipants = {
 	participantsMinted: Array<AccountId>
 }
 
+export enum UserType {
+	organizer = 'Organizer',
+	participant = 'Participant'
+}
+

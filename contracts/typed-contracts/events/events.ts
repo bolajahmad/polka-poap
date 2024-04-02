@@ -17,6 +17,20 @@ export default class EventsClass {
 		this.__api = api;
 	}
 
+	public subscribeOnUserUpdatedEvent(callback : (event : EventTypes.UserUpdated) => void) {
+		const callbackWrapper = (args: any[], event: any) => {
+			const _event: Record < string, any > = {};
+
+			for (let i = 0; i < args.length; i++) {
+				_event[event.args[i]!.name] = args[i]!.toJSON();
+			}
+
+			callback(handleEventReturn(_event, getEventTypeDescription('UserUpdated', EVENT_DATA_TYPE_DESCRIPTIONS)) as EventTypes.UserUpdated);
+		};
+
+		return this.__subscribeOnEvent(callbackWrapper, (eventName : string) => eventName == 'UserUpdated');
+	}
+
 	public subscribeOnActivityUpdatedEvent(callback : (event : EventTypes.ActivityUpdated) => void) {
 		const callbackWrapper = (args: any[], event: any) => {
 			const _event: Record < string, any > = {};

@@ -1,6 +1,6 @@
 {
   "source": {
-    "hash": "0xe121faa96752aecc04f108e44edf28bdab8afb3f1607044c55679bba822f5685",
+    "hash": "0xc7b62c62a918b221b29d310d8d7200a0c5c6d007f093de4f12f26bb94f7dc5ff",
     "language": "ink! 4.3.0",
     "compiler": "rustc 1.75.0",
     "build_info": {
@@ -62,7 +62,7 @@
         "displayName": [
           "Balance"
         ],
-        "type": 20
+        "type": 24
       },
       "blockNumber": {
         "displayName": [
@@ -74,13 +74,13 @@
         "displayName": [
           "ChainExtension"
         ],
-        "type": 22
+        "type": 26
       },
       "hash": {
         "displayName": [
           "Hash"
         ],
-        "type": 21
+        "type": 25
       },
       "maxEventTopics": 4,
       "timestamp": {
@@ -91,6 +91,56 @@
       }
     },
     "events": [
+      {
+        "args": [
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "user_id",
+            "type": {
+              "displayName": [
+                "AccountId"
+              ],
+              "type": 3
+            }
+          },
+          {
+            "docs": [],
+            "indexed": true,
+            "label": "user_type",
+            "type": {
+              "displayName": [
+                "UserType"
+              ],
+              "type": 21
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "username",
+            "type": {
+              "displayName": [
+                "HashByte"
+              ],
+              "type": 5
+            }
+          },
+          {
+            "docs": [],
+            "indexed": false,
+            "label": "new_user",
+            "type": {
+              "displayName": [
+                "bool"
+              ],
+              "type": 22
+            }
+          }
+        ],
+        "docs": [],
+        "label": "UserUpdated"
+      },
       {
         "args": [
           {
@@ -145,7 +195,7 @@
               "displayName": [
                 "Option"
               ],
-              "type": 19
+              "type": 23
             }
           }
         ],
@@ -267,12 +317,21 @@
       {
         "args": [
           {
-            "label": "event_id",
+            "label": "participant_id",
             "type": {
               "displayName": [
-                "EventId"
+                "AccountId"
               ],
-              "type": 0
+              "type": 3
+            }
+          },
+          {
+            "label": "username",
+            "type": {
+              "displayName": [
+                "HashByte"
+              ],
+              "type": 5
             }
           }
         ],
@@ -330,7 +389,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 12
+          "type": 15
         },
         "selector": "0xdc82de3a"
       },
@@ -356,7 +415,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 15
+          "type": 17
         },
         "selector": "0xf83e3918"
       },
@@ -497,7 +556,7 @@
             "ink",
             "MessageResult"
           ],
-          "type": 17
+          "type": 19
         },
         "selector": "0xb1edc53f"
       }
@@ -608,6 +667,20 @@
                 }
               },
               "name": "organizers"
+            },
+            {
+              "layout": {
+                "root": {
+                  "layout": {
+                    "leaf": {
+                      "key": "0x11e69bb2",
+                      "ty": 5
+                    }
+                  },
+                  "root_key": "0x11e69bb2"
+                }
+              },
+              "name": "participants"
             },
             {
               "layout": {
@@ -1054,45 +1127,41 @@
       "id": 16,
       "type": {
         "def": {
-          "composite": {
-            "fields": [
+          "variant": {
+            "variants": [
               {
-                "name": "event_date",
-                "type": 0,
-                "typeName": "u64"
+                "fields": [
+                  {
+                    "type": 0
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
               },
               {
-                "name": "event_id",
-                "type": 0,
-                "typeName": "EventId"
-              },
-              {
-                "name": "block_created",
-                "type": 1,
-                "typeName": "u32"
-              },
-              {
-                "name": "collection_id",
-                "type": 2,
-                "typeName": "u8"
-              },
-              {
-                "name": "created_by",
-                "type": 3,
-                "typeName": "AccountId"
-              },
-              {
-                "name": "mint_date",
-                "type": 0,
-                "typeName": "u64"
+                "fields": [
+                  {
+                    "type": 14
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
               }
             ]
           }
         },
+        "params": [
+          {
+            "name": "T",
+            "type": 0
+          },
+          {
+            "name": "E",
+            "type": 14
+          }
+        ],
         "path": [
-          "events",
-          "events",
-          "Activity"
+          "Result"
         ]
       }
     },
@@ -1145,6 +1214,94 @@
           "composite": {
             "fields": [
               {
+                "name": "event_date",
+                "type": 0,
+                "typeName": "u64"
+              },
+              {
+                "name": "event_id",
+                "type": 0,
+                "typeName": "EventId"
+              },
+              {
+                "name": "block_created",
+                "type": 1,
+                "typeName": "u32"
+              },
+              {
+                "name": "collection_id",
+                "type": 2,
+                "typeName": "u8"
+              },
+              {
+                "name": "created_by",
+                "type": 3,
+                "typeName": "AccountId"
+              },
+              {
+                "name": "mint_date",
+                "type": 0,
+                "typeName": "u64"
+              }
+            ]
+          }
+        },
+        "path": [
+          "events",
+          "events",
+          "Activity"
+        ]
+      }
+    },
+    {
+      "id": 19,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "fields": [
+                  {
+                    "type": 20
+                  }
+                ],
+                "index": 0,
+                "name": "Ok"
+              },
+              {
+                "fields": [
+                  {
+                    "type": 9
+                  }
+                ],
+                "index": 1,
+                "name": "Err"
+              }
+            ]
+          }
+        },
+        "params": [
+          {
+            "name": "T",
+            "type": 20
+          },
+          {
+            "name": "E",
+            "type": 9
+          }
+        ],
+        "path": [
+          "Result"
+        ]
+      }
+    },
+    {
+      "id": 20,
+      "type": {
+        "def": {
+          "composite": {
+            "fields": [
+              {
                 "name": "participants_registered",
                 "type": 6,
                 "typeName": "Vec<AccountId>"
@@ -1170,7 +1327,39 @@
       }
     },
     {
-      "id": 19,
+      "id": 21,
+      "type": {
+        "def": {
+          "variant": {
+            "variants": [
+              {
+                "index": 0,
+                "name": "Organizer"
+              },
+              {
+                "index": 1,
+                "name": "Participant"
+              }
+            ]
+          }
+        },
+        "path": [
+          "events",
+          "events",
+          "UserType"
+        ]
+      }
+    },
+    {
+      "id": 22,
+      "type": {
+        "def": {
+          "primitive": "bool"
+        }
+      }
+    },
+    {
+      "id": 23,
       "type": {
         "def": {
           "variant": {
@@ -1203,7 +1392,7 @@
       }
     },
     {
-      "id": 20,
+      "id": 24,
       "type": {
         "def": {
           "primitive": "u128"
@@ -1211,7 +1400,7 @@
       }
     },
     {
-      "id": 21,
+      "id": 25,
       "type": {
         "def": {
           "composite": {
@@ -1231,7 +1420,7 @@
       }
     },
     {
-      "id": 22,
+      "id": 26,
       "type": {
         "def": {
           "variant": {}
