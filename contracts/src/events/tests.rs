@@ -226,6 +226,59 @@ macro_rules! tests {
                 test::set_caller::<Environment>(accounts.alice);
                 let _ = _events.register_participant_for_event(event_id);
             }
+
+            #[ink::test]
+            #[should_panic(expected = "EventDoesNotExist")]
+            pub fn register_invalid_eventid_fails() {
+                let accounts = default_accounts();
+                let (participant, username) = (accounts.bob, "jamaljones".as_bytes().to_vec());
+
+                let mut _events = build_contract();
+                let _ = _events.register_participant(participant, username);
+                advance_block();
+                test::set_caller::<Environment>(participant);
+
+                let _ = _events.register_participant_for_event(34_u64);
+            }
+
+            #[ink::test]
+            pub fn registering_participant_works() {
+                let accounts = default_accounts();
+                let (participant, organizer, username, org_name) = (
+                    accounts.bob,
+                    accounts.charlie,
+                    "jamaljones".as_bytes().to_vec(),
+                    "organ_jones".as_bytes().to_vec(),
+                );
+
+                let mut _events = build_contract();
+                _events.register_organizer(organizer, org_name);
+                advance_block();
+                test::set_caller::<Environment>(organizer);
+                let event_date: u64 = 32454251;
+                let mint_date: u64 = 435261762;
+                let result = _events.create_new_event(COLLECTION_ID, event_date, mint_date);
+                let _ = _events.register_participant(participant, username);
+
+                advance_block();
+                test::set_caller::<Environment>(participant);
+                let event_id = match result {
+                    Ok(id) => id,
+                    _ => 0_u64,
+                };
+                let data = _events.event_to_participants.get(&event_id).unwrap();
+                assert!(!data
+                    .participants_registered
+                    .iter()
+                    .any(|&x| x == participant));
+
+                let _ = _events.register_participant_for_event(event_id);
+                let data = _events.event_to_participants.get(&event_id).unwrap();
+                assert!(data
+                    .participants_registered
+                    .iter()
+                    .any(|&x| x == participant));
+            }
         }
     };
 }

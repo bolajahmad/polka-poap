@@ -276,6 +276,8 @@ mod events {
                 .any(|&x| x == caller);
             assert_eq!(is_participant_registered, false, "UserAlreadyRegistered");
             participants_data.participants_registered.push(caller);
+            self.event_to_participants
+                .insert(event_id, &participants_data);
             Ok(())
         }
 
@@ -293,12 +295,10 @@ mod events {
                 .participants_attended
                 .iter()
                 .any(|&x| x == caller);
-            if is_attending {
-                return Ok(());
-            } else {
+            if !is_attending {
                 participants_data.participants_attended.push(caller);
-                Ok(())
             }
+            Ok(())
         }
 
         /// Generate a token for the caller_address

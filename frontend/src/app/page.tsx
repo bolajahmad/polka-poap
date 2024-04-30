@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
+
+      {/* <CreateEventView /> */}
       <h1 className="text-3xl font-bold">Event Details</h1>
         <div className="grid gap-1 text-sm">
           <dl className="grid grid-cols-2 gap-1">
