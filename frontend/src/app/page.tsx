@@ -1,11 +1,17 @@
+"use client"
+
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "ink-interactors";
 
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <Tooltip text="No text needed">
+        <div>Hi here</div>
+      </Tooltip>
 
       {/* <CreateEventView /> */}
-      <h1 className="text-3xl font-bold">Event Details</h1>
+      {/* <h1 className="text-3xl font-bold">Event Details</h1>
         <div className="grid gap-1 text-sm">
           <dl className="grid grid-cols-2 gap-1">
             <dt>Date</dt>
@@ -56,7 +62,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="mt-8 border-t border-gray-200 dark:border-gray-800" />
+        <div className="mt-8 border-t border-gray-200 dark:border-gray-800" /> */}
         <div className="mt-8 space-y-4">
           <Button>Mint Token</Button>
         </div>
