@@ -19,6 +19,7 @@ import {
   Text
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FiPlusCircle } from "react-icons/fi";
@@ -30,6 +31,7 @@ export default function CreatePOAPDrop() {
   const { register, handleSubmit } = useForm({
     resolver: zodResolver(CreatePOAPSchema),
   });
+  const navigate = useRouter();
   const { login } = useWeb3Auth();
   const { user, connect } = useWalletStore((state) => state);
   const [authenticatedUser, setUser] = useState<any>();
@@ -50,6 +52,7 @@ export default function CreatePOAPDrop() {
   /// Create user POAP drop schedule
   const onSubmit: SubmitHandler<Record<string, string>> = (model) => {
     console.log({ model });
+    navigate.push('/drops');
   };
 
   return authenticatedUser ? (
