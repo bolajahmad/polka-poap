@@ -1,5 +1,5 @@
 import { IPOAPInformation } from "@/models/poap";
-import { Avatar, Badge, Box, Spacer, Stack, Text } from "@chakra-ui/react";
+import { Avatar, Badge, Box, Link, Spacer, Stack, Text } from "@chakra-ui/react";
 import { FiCalendar } from "react-icons/fi";
 import { MdLocationOn } from "react-icons/md";
 
@@ -14,8 +14,8 @@ export const MiniPOAPCardItem = ({
 }: Omit<IPOAPInformation, 'metadataCid' | 'eventId' | 'name' | 'timestamp' | 'mintDate' | 'blockNumber'>) => {
 
   return (
-    <Box p={8} className="border rounded-xl border-[#473e6b]">
-      <Stack>
+    <Box className="border rounded-xl border-[#473e6b]">
+      <Stack p={8} as={Link} href={`/drop/${id}`}>
         <Box textAlign="center" bg="#f5f4ff" className="rounded-xl">
           <Avatar mx="auto" size="lg" />
           <Badge>

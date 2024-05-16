@@ -1,8 +1,8 @@
 #[cfg(not(feature = "enumerable"))]
 pub mod balance_manager {
     use crate::{data::Id, PSP34Error};
-    use ink::{primitives::AccountId, storage::Mapping};
     use ink::prelude::string::String;
+    use ink::{primitives::AccountId, storage::Mapping};
 
     #[ink::storage_item]
     #[derive(Default, Debug)]
@@ -12,9 +12,9 @@ pub mod balance_manager {
     }
 
     impl Balances {
-        pub fn new() -> Balances {
-            Default::default()
-        }
+        // pub fn new() -> Balances {
+        //     Default::default()
+        // }
 
         pub fn balance_of(&self, owner: &AccountId) -> u32 {
             self.owned_tokens_count.get(owner).unwrap_or(0)
@@ -51,10 +51,11 @@ pub mod balance_manager {
             if from_balance <= 1 {
                 self.owned_tokens_count.remove(owner);
             } else {
-                self.owned_tokens_count.insert(owner, &(from_balance - 1));
+                self.owned_tokens_count
+                    .insert(owner, &(from_balance.checked_sub(1).unwrap()));
             }
             if decrease_supply {
-                self.total_supply -= 1;
+                self.total_supply.checked_sub(1).unwrap();
             }
         }
 
@@ -141,7 +142,7 @@ pub mod balance_manager {
             Ok(())
         }
 
-        pub fn decrease_balance(&mut self, owner: &AccountId, id: &Id, decrease_supply: bool) {              
+        pub fn decrease_balance(&mut self, owner: &AccountId, id: &Id, decrease_supply: bool) {
             self._remove(&Some(*owner), id);
             if self.balance_of(owner) == 0 {
                 self.enumerable.remove(Some(owner));

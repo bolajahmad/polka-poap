@@ -16,6 +16,7 @@ export interface IPOAPInformation {
         country: string,
     },
     url?: string,
+    website?: string;
 }
 
 

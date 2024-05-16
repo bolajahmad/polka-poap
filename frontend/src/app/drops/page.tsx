@@ -1,23 +1,23 @@
 "use client";
 import {
-    Box,
-    Button,
-    Container,
-    Flex,
-    FormControl,
-    Grid,
-    GridItem,
-    Heading,
-    Input,
-    List,
-    Select,
-    Spacer,
-    Text,
+  Box,
+  Button,
+  Container,
+  Flex,
+  FormControl,
+  Grid,
+  GridItem,
+  Heading,
+  Input,
+  List,
+  Select,
+  Spacer,
+  Text,
 } from "@chakra-ui/react";
 import { useState } from "react";
 import {
-    HiOutlineSortAscending,
-    HiOutlineSortDescending,
+  HiOutlineSortAscending,
+  HiOutlineSortDescending,
 } from "react-icons/hi";
 import { MdNavigateNext } from "react-icons/md";
 import { MiniPOAPCardItem } from "../(components)/(list-items)/MiniPOAPCardItem";
@@ -112,17 +112,8 @@ export default function DropsPage() {
             </Flex>
           </Flex>
 
-          <Grid>
+          <Grid gridTemplateColumns="repeat(auto-fit, minmax(200px, 400px))" gridGap={14}>
             <GridItem>
-              <MiniPOAPCardItem
-                id={10}
-                description="POlka POAP team gathering at special place(s)."
-                startDate={109276372}
-                endDate={109276372}
-                eventType="Virtual"
-                url="https://polka.network"
-                address={{ city: "Lagos", country: "Nigeria" }}
-              />
               <MiniPOAPCardItem
                 id={11}
                 description="POlka POAP team gathering at special place(s)."
@@ -133,6 +124,17 @@ export default function DropsPage() {
                 address={{ city: "Lagos", country: "Nigeria" }}
               />
             </GridItem>
+            <GridItem>
+              <MiniPOAPCardItem
+                id={10}
+                description="POlka POAP team gathering at special place(s)."
+                startDate={109276372}
+                endDate={109276372}
+                eventType="Virtual"
+                url="https://polka.network"
+                address={{ city: "Lagos", country: "Nigeria" }}
+              />
+              </GridItem>
           </Grid>
         </Box>
       </Box>
