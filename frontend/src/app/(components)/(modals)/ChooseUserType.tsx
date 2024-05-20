@@ -1,8 +1,8 @@
 'use client'
 
 import { useWeb3Auth } from '@/app/(context)/(web3-auth-provider)/web3-auth-provider';
-import { useEventsContract } from '@/app/hooks/useEventContract';
 import { Button } from '@/components/ui/button';
+import { useEventsContract } from '@/hooks/useEventContract';
 import { Radio, RadioGroup } from '@chakra-ui/react';
 import { Dialog } from '@headlessui/react';
 import { useState } from 'react';

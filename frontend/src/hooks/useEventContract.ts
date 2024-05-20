@@ -1,8 +1,8 @@
 import { AllowedUsers } from "@/models/contract-types";
 import { useInkathon, useRegisteredContract, type ContractTxResult } from "@scio-labs/use-inkathon";
 import toast from "react-hot-toast";
-import { contractTxWithToast } from "../(components)/(toasts)/contract-tx-with-toast";
-import { ContractIds } from "../(utils)/deployments";
+import { contractTxWithToast } from "../app/(components)/(toasts)/contract-tx-with-toast";
+import { ContractIds } from "../app/(utils)/deployments";
 
 export const useEventsContract = () => {
     const { api } = useInkathon();

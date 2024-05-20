@@ -12,7 +12,7 @@
 *
 ** Functions
 *
-* 
+*
  */
 #[ink::contract]
 mod users {
@@ -21,13 +21,20 @@ mod users {
 
     pub type HashByte = Vec<u8>;
 
+    #[derive(Copy, Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
+    #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
+    pub enum Error {
+        UserExists,
+        UserNotFound,
+    }
+
     #[ink(event)]
     pub struct UserUpdated {
         by: Option<AccountId>,
         updated_when: Option<u64>,
         user_hash: HashByte,
     }
-    
+
     #[ink(storage)]
     pub struct Users {
         organizers_by_id: Mapping<AccountId, HashByte>,
@@ -38,26 +45,42 @@ mod users {
         /// Constructor that initializes the storage value(s)
         #[ink(constructor)]
         pub fn new() -> Self {
-            Self { 
+            Self {
                 organizers_by_id: Mapping::new(),
                 participants_by_id: Mapping::new(),
-             }
+            }
         }
 
-        /// Constructor that initializes the `bool` value to `false`.
-        ///
-        /// Constructors can delegate to other constructors.
-        #[ink(constructor)]
-        pub fn default() -> Self {
-            Self::new()
-        }
-
-        /// A message that can be called on instantiated contracts.
-        /// This one flips the value of the stored `bool` from `true`
-        /// to `false` and vice versa.
         #[ink(message)]
-        pub fn flip(&mut self) {
-            self.organizers_by_id = Mapping::new();
+        pub fn verify_organizer(&self, account: AccountId) -> Result<HashByte, Error> {
+            let existing_user = self.organizers_by_id.get(&account);
+
+            match existing_user {
+                Some(hash) => Ok(hash),
+                None => Err(Error::UserNotFound),
+            }
+        }
+
+        #[ink(message)]
+        pub fn create_organizer(
+            &mut self,
+            account: AccountId,
+            hash: HashByte,
+        ) -> Result<(), Error> {
+            let existing_user = self.organizers_by_id.get(&account);
+
+            match existing_user {
+                Some(_) => Err(Error::UserExists),
+                None => {
+                    self.organizers_by_id.insert(account, &hash);
+                    self.env().emit_event(UserUpdated {
+                        by: Some(self.env().caller()),
+                        updated_when: Some(self.env().block_timestamp()),
+                        user_hash: hash,
+                    });
+                    Ok(())
+                }
+            }
         }
     }
 
@@ -72,20 +95,19 @@ mod users {
         /// We test if the default constructor does its job.
         #[ink::test]
         fn default_works() {
-            let users = Users::default();
-            assert_eq!(users.get(), false);
+            let users = Users::new();
+            // assert_eq!(users.(), false);
         }
 
-        /// We test a simple use case of our contract.
-        #[ink::test]
-        fn it_works() {
-            let mut users = Users::new(false);
-            assert_eq!(users.get(), false);
-            users.flip();
-            assert_eq!(users.get(), true);
-        }
+        // We test a simple use case of our contract.
+        // #[ink::test]
+        // fn it_works() {
+        //     let mut users = Users::new(false);
+        //     assert_eq!(users.get(), false);
+        //     users.flip();
+        //     assert_eq!(users.get(), true);
+        // }
     }
-
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
     ///
@@ -117,8 +139,8 @@ mod users {
                 .account_id;
 
             // Then
-            let get = build_message::<UsersRef>(contract_account_id.clone())
-                .call(|users| users.get());
+            let get =
+                build_message::<UsersRef>(contract_account_id.clone()).call(|users| users.get());
             let get_result = client.call_dry_run(&ink_e2e::alice(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), false));
 
@@ -136,22 +158,22 @@ mod users {
                 .expect("instantiate failed")
                 .account_id;
 
-            let get = build_message::<UsersRef>(contract_account_id.clone())
-                .call(|users| users.get());
+            let get =
+                build_message::<UsersRef>(contract_account_id.clone()).call(|users| users.get());
             let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), false));
 
             // When
-            let flip = build_message::<UsersRef>(contract_account_id.clone())
-                .call(|users| users.flip());
+            let flip =
+                build_message::<UsersRef>(contract_account_id.clone()).call(|users| users.flip());
             let _flip_result = client
                 .call(&ink_e2e::bob(), flip, 0, None)
                 .await
                 .expect("flip failed");
 
             // Then
-            let get = build_message::<UsersRef>(contract_account_id.clone())
-                .call(|users| users.get());
+            let get =
+                build_message::<UsersRef>(contract_account_id.clone()).call(|users| users.get());
             let get_result = client.call_dry_run(&ink_e2e::bob(), &get, 0, None).await;
             assert!(matches!(get_result.return_value(), true));
 
