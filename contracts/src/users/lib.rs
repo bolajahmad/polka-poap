@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+mod tests;
+
 /*
 ** User management contract.
 ** This contract holds information about the different users existing on the platform.
@@ -11,6 +13,9 @@
 ** participants_by_id
 *
 ** Functions
+*
+* verify_organizer
+* create_organizer
 *
 *
  */
@@ -89,24 +94,7 @@ mod users {
     /// The below code is technically just normal Rust code.
     #[cfg(test)]
     mod tests {
-        /// Imports all the definitions from the outer scope so we can use them here.
-        use super::*;
-
-        /// We test if the default constructor does its job.
-        #[ink::test]
-        fn default_works() {
-            let users = Users::new();
-            // assert_eq!(users.(), false);
-        }
-
-        // We test a simple use case of our contract.
-        // #[ink::test]
-        // fn it_works() {
-        //     let mut users = Users::new(false);
-        //     assert_eq!(users.get(), false);
-        //     users.flip();
-        //     assert_eq!(users.get(), true);
-        // }
+        crate::tests!(Users, Users::new);
     }
 
     /// This is how you'd write end-to-end (E2E) or integration tests for ink! contracts.
