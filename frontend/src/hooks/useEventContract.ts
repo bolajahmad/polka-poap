@@ -24,7 +24,25 @@ export const useEventsContract = () => {
         }
     }
 
+    const registerEvent = async (caller: string, collectionCid: string, eventDate: number, mintDate: number) => {
+        if (!api || !contract) return null;
+
+        try {
+            const result = await contractTxWithToast(api, caller, contract, 'create_new_event', {}, [
+                collectionCid,
+                eventDate,
+                mintDate
+            ])
+            console.log({ result })
+            return result;
+        } catch (error) {
+            console.error(error)
+            toast.error('Failed to register new event!')
+        }
+    }
+
     return {
         registerNewUser,
+        registerEvent,
     }
 }

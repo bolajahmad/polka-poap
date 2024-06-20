@@ -1,6 +1,7 @@
 import { SubstrateDeployment } from '@scio-labs/use-inkathon'
 
 import { env } from '@/config/environment'
+import { EVENTS_CONTRACT_ADDRESS, USERS_CONTRACT_ADDRESS } from '@/deployments/contracts'
 
 /**
  * Add or change your custom contract ids here
@@ -16,10 +17,24 @@ export const getDeployments = async (): Promise<SubstrateDeployment[]> => {
   const deployments: SubstrateDeployment[] = []
 
   for (const networkId of networks) {
-      const abi = await import('@/metadata/events.json')
-      const address= 'b1mNsLPe6w97cMWou965EcG4yG2LZBQYy8vzynkgnfu9pr1'
+      const eventsAbi = await import('@/deployments/events.json')
+      const eventsDeployment: SubstrateDeployment = {
+        contractId: ContractIds.Events,
+        networkId,
+        abi: eventsAbi, 
+        address: EVENTS_CONTRACT_ADDRESS,
+      }
+      deployments.push(eventsDeployment);
 
-      deployments.push({ contractId: ContractIds.Events, networkId, abi, address })
+      const usersAbi = await import('@/deployments/users.json');
+      const usersDeployment: SubstrateDeployment = {
+        contractId: ContractIds.Users,
+        networkId,
+        abi: usersAbi,
+        address: USERS_CONTRACT_ADDRESS
+      }
+
+      deployments.push(usersDeployment)
   }
 
   return deployments

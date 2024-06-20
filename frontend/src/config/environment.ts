@@ -13,4 +13,7 @@ export const env = {
   supportedChains: getSupportedChains(),
 
   web3AuthID: process.env.NEXT_PUBLIC_WEB3_AUTH_CLIENT_ID!,
+
+  fbAccess: process.env.NEXT_PUBLIC_FILEBASE_ACCESS_KEY,
+  fbSecret: process.env.NEXT_PUBLIC_FILEBASE_SECRET_KEY,
 }

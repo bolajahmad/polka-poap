@@ -1,6 +1,7 @@
 'use client'
 
 import { OpenloginUserInfo } from "@/models/contract-types";
+import { type KeyringPair } from "@polkadot/keyring/types";
 import { SubstrateWalletPlatform, allSubstrateWallets, isWalletInstalled, useInkathon } from "@scio-labs/use-inkathon";
 import { Dispatch, PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState } from "react";
 import { SubstrateRPC, initializeWeb3Auth } from "../../(utils)/web3auth-logic";
@@ -12,6 +13,7 @@ interface IWeb3AuthContextType {
     login: () => Promise<undefined | Partial<OpenloginUserInfo>>;
     dispatch: Dispatch<Action>;
     logout: () => Promise<void>;
+    getSigner: (secret?: string) => Promise<KeyringPair | null>;
 }
   
 const Web3AuthContext = createContext<IWeb3AuthContextType | null>(null);
@@ -19,7 +21,7 @@ const Web3AuthContext = createContext<IWeb3AuthContextType | null>(null);
 export const Web3AuthProvider = ({ children }: PropsWithChildren) => {
     const { connect } = useInkathon();
     const [state, dispatch] = useReducer(reducer, initialState)
-    const { web3Auth } = state;
+    const { web3Auth, provider, userInfo } = state;
     const [browserWallets] = useState(
       allSubstrateWallets.filter((w) => w.platforms.includes(SubstrateWalletPlatform.Browser)),
     )
@@ -51,12 +53,9 @@ export const Web3AuthProvider = ({ children }: PropsWithChildren) => {
                 }
             })
 
-            console.log({ loggedInUser })
-
-            // await connect?.(undefined, selectedWallet)
-
             const rpc = new SubstrateRPC(provider!)
             const addressData = await rpc.getPrivateKey();
+            console.log({ addressData });
             dispatch({
               type: "SET_PRIVATE_KEY",
               payload: {
@@ -64,9 +63,24 @@ export const Web3AuthProvider = ({ children }: PropsWithChildren) => {
                 encodedSecretKey: addressData.encodedSecretKey
               }
             })
-            return {...loggedInUser, address: addressData.address}
+            return {
+                ...loggedInUser, 
+                address: addressData.address, 
+                encodedSecretKey: addressData.encodedSecretKey 
+            }
         }
     }
+    
+    const getSigner = useCallback(async (secretKey = userInfo.encodedSecretKey as string) => {
+        if (!!web3Auth || !!provider) {
+            const rpc = new SubstrateRPC(provider!)
+            const signer = await rpc.deriveSignerFromWallet(secretKey);
+            console.log({ signerInna: signer })
+            return signer;
+        } 
+        
+        return null;
+    }, [web3Auth, provider, userInfo.encodedSecretKey])
 
     const logout = async () => {
         if (web3Auth) {
@@ -90,6 +104,7 @@ export const Web3AuthProvider = ({ children }: PropsWithChildren) => {
                 initializeWallet,
                 dispatch,
                 logout,
+                getSigner
             }}
         >
             {children}

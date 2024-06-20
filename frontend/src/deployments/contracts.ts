@@ -1,0 +1,2 @@
+export const USERS_CONTRACT_ADDRESS = "5E2coJaZjQ41brC7hLyU1ZbpzpsxCua4NTqL8AJg4Zw5FAVU"
+export const EVENTS_CONTRACT_ADDRESS = "5EBry2FeG9paouxBq4FUwohSUmYK9jQzLcoD3ujhuRqthKXR"

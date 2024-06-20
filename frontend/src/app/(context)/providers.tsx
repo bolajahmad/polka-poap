@@ -8,7 +8,7 @@ import { getDeployments } from "../(utils)/deployments"
 import { RootStoreProvider } from "./(store)/store"
 import Web3AuthProvider from "./(web3-auth-provider)/web3-auth-provider"
 
-export default function ClientProviders({ children }: PropsWithChildren) {
+export default function ClientProviders({ children }: Readonly<PropsWithChildren>) {
     return (
        <ChakraProvider>
             <RootStoreProvider>

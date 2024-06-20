@@ -11,9 +11,10 @@ export const TextInput = ({ label, name, placeholder, type, register }: InputPro
     return (
         <Box>
             <FormControl>
-                {label ? <FormLabel>{label}</FormLabel> : null}
+                {label ? <FormLabel htmlFor={name}>{label}</FormLabel> : null}
                 <Input
                     {...register(name)}
+                    id={name}
                     type={type}
                     placeholder={placeholder}
                 />

@@ -17,14 +17,21 @@ macro_rules! tests {
             }
 
             const POLKAPOAP_WALLET: [u8; 32] = [6; 32];
-            const COLLECTION_ID: u8 = !(1u8 << 7);
+            const USERS_WALLET: [u8; 32] = [9; 32];
             fn default_accounts() -> test::DefaultAccounts<Environment> {
                 ink::env::test::default_accounts::<Environment>()
             }
 
+            fn collection_id() -> Vec<u8> {
+                return "QmTMZHGvYAmuAc7HHSnyLwtfWtbpdTrXAXGxBXaRe36owT"
+                    .as_bytes()
+                    .to_vec()
+            }
+
             fn build_contract() -> Events {
                 let polkapoap_address = AccountId::from(POLKAPOAP_WALLET);
-                $constructor(polkapoap_address)
+                let users_contract = AccountId::from(USERS_WALLET);
+                $constructor(users_contract, polkapoap_address)
             }
 
             fn assert_activity_updated_event(
@@ -65,20 +72,6 @@ macro_rules! tests {
                 );
             }
 
-            // We test a simple use case of our contract.
-            #[ink::test]
-            fn register_organizer_works() {
-                let mut _events = build_contract();
-                let accounts = default_accounts();
-                let organizer = accounts.alice;
-                let username = "jamaljones".as_bytes().to_vec();
-                _events.register_organizer(organizer, username);
-                assert_eq!(
-                    _events.get_organizer(organizer),
-                    "jamaljones".as_bytes().to_vec()
-                );
-            }
-
             #[ink::test]
             #[should_panic]
             fn register_existing_organizer_fails() {
@@ -114,7 +107,7 @@ macro_rules! tests {
                 let mint_date: u64 = 20530565284836;
 
                 let mut _events = build_contract();
-                let _ = _events.create_new_event(COLLECTION_ID, event_date, mint_date);
+                let _ = _events.create_new_event(collection_id(), event_date, mint_date);
                 assert_eq!(test::recorded_events().count(), 0);
             }
 
@@ -133,7 +126,7 @@ macro_rules! tests {
 
                 advance_block();
                 test::set_caller::<Environment>(organizer);
-                let response = _events.create_new_event(COLLECTION_ID, event_date, mint_date);
+                let response = _events.create_new_event(collection_id(), event_date, mint_date);
 
                 assert!(response.is_ok());
                 let event_id = match response {
@@ -161,7 +154,7 @@ macro_rules! tests {
                 advance_block();
 
                 test::set_caller::<Environment>(organizer);
-                let response = _events.create_new_event(COLLECTION_ID, event_date, mint_date);
+                let response = _events.create_new_event(collection_id(), event_date, mint_date);
                 let event_id = match response {
                     Ok(id) => id,
                     _ => 0_u64,
@@ -210,13 +203,13 @@ macro_rules! tests {
                 // register organizer
                 let (organizer, org_name) = (accounts.charlie, "jamaljones".as_bytes().to_vec());
 
-                _events.register_organizer(organizer, org_name);
+                _events.verify_organizer(&organizer);
                 advance_block();
 
                 let event_date: u64 = 32454251;
                 let mint_date: u64 = 435261762;
                 test::set_caller::<Environment>(organizer);
-                let result = _events.create_new_event(COLLECTION_ID, event_date, mint_date);
+                let result = _events.create_new_event(collection_id(), event_date, mint_date);
                 advance_block();
                 let event_id = match result {
                     Ok(id) => id,

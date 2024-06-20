@@ -29,6 +29,8 @@ export function PageLayout({ children }: PropsWithChildren) {
               <Center>
                 <Button as={Link} href="/create-drop" colorScheme="teal">Create POAP</Button>
               </Center>
+
+              {/* <ConnectWalletButton /> */}
             </Flex>
             {/* <AuthenticateUser /> */}
           </div>

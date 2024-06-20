@@ -23,9 +23,11 @@ export default class Constructors {
 	/**
 	* new
 	*
+	* @param { ArgumentTypes.AccountId } usersContract,
 	* @param { ArgumentTypes.AccountId } polkapoap,
 	*/
    	async "new" (
+		usersContract: ArgumentTypes.AccountId,
 		polkapoap: ArgumentTypes.AccountId,
 		__options ? : ConstructorOptions,
    	) {
@@ -34,7 +36,7 @@ export default class Constructors {
 		const gasLimit = (await _genValidGasLimitAndValue(this.nativeAPI, __options)).gasLimit as WeightV2;
 
 		const storageDepositLimit = __options?.storageDepositLimit;
-			const tx = code.tx["new"]!({ gasLimit, storageDepositLimit, value: __options?.value }, polkapoap);
+			const tx = code.tx["new"]!({ gasLimit, storageDepositLimit, value: __options?.value }, usersContract, polkapoap);
 			let response;
 
 			try {

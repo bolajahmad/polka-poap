@@ -43,54 +43,36 @@ export default class Methods {
 	}
 
 	/**
-	 * registerOrganizer
+	 * updateUsersContract
 	 *
-	 * @param { ArgumentTypes.AccountId } organizerId,
-	 * @param { Array<(number | string | BN)> } username,
+	 * @param { ArgumentTypes.AccountId } contractAccount,
 	*/
-	"registerOrganizer" (
-		organizerId: ArgumentTypes.AccountId,
-		username: Array<(number | string | BN)>,
+	"updateUsersContract" (
+		contractAccount: ArgumentTypes.AccountId,
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerOrganizer", [organizerId, username], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "updateUsersContract", [contractAccount], __options);
 	}
 
 	/**
-	 * getOrganizer
+	 * getUsersContract
 	 *
-	 * @param { ArgumentTypes.AccountId } organizerId,
 	*/
-	"getOrganizer" (
-		organizerId: ArgumentTypes.AccountId,
+	"getUsersContract" (
 		__options: GasLimit,
 	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "getOrganizer", [organizerId], __options);
-	}
-
-	/**
-	 * registerParticipant
-	 *
-	 * @param { ArgumentTypes.AccountId } participantId,
-	 * @param { Array<(number | string | BN)> } username,
-	*/
-	"registerParticipant" (
-		participantId: ArgumentTypes.AccountId,
-		username: Array<(number | string | BN)>,
-		__options: GasLimit,
-	){
-		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "registerParticipant", [participantId, username], __options);
+		return buildSubmittableExtrinsic( this.__apiPromise, this.__nativeContract, "getUsersContract", [], __options);
 	}
 
 	/**
 	 * createNewEvent
 	 *
-	 * @param { (number | string | BN) } collectionId,
+	 * @param { Array<(number | string | BN)> } collectionId,
 	 * @param { (number | string | BN) } eventDate,
 	 * @param { (number | string | BN) } mintDate,
 	*/
 	"createNewEvent" (
-		collectionId: (number | string | BN),
+		collectionId: Array<(number | string | BN)>,
 		eventDate: (number | string | BN),
 		mintDate: (number | string | BN),
 		__options: GasLimit,

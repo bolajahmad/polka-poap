@@ -30,14 +30,59 @@ export default class Methods {
 	}
 
 	/**
-	* flip
+	* verifyOrganizer
 	*
-	* @returns { Result<null, ReturnTypes.LangError> }
+	* @param { ArgumentTypes.AccountId } account,
+	* @returns { Result<Result<Array<number>, ReturnTypes.Error>, ReturnTypes.LangError> }
 	*/
-	"flip" (
+	"verifyOrganizer" (
+		account: ArgumentTypes.AccountId,
 		__options ? : GasLimit,
-	): Promise< QueryReturnType< Result<null, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "flip", [], __options , (result) => { return handleReturnType(result, getTypeDescription(2, DATA_TYPE_DESCRIPTIONS)); });
+	): Promise< QueryReturnType< Result<Result<Array<number>, ReturnTypes.Error>, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "verifyOrganizer", [account], __options , (result) => { return handleReturnType(result, getTypeDescription(7, DATA_TYPE_DESCRIPTIONS)); });
+	}
+
+	/**
+	* createOrganizer
+	*
+	* @param { ArgumentTypes.AccountId } account,
+	* @param { Array<(number | string | BN)> } hash,
+	* @returns { Result<Result<null, ReturnTypes.Error>, ReturnTypes.LangError> }
+	*/
+	"createOrganizer" (
+		account: ArgumentTypes.AccountId,
+		hash: Array<(number | string | BN)>,
+		__options ? : GasLimit,
+	): Promise< QueryReturnType< Result<Result<null, ReturnTypes.Error>, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "createOrganizer", [account, hash], __options , (result) => { return handleReturnType(result, getTypeDescription(10, DATA_TYPE_DESCRIPTIONS)); });
+	}
+
+	/**
+	* verifyParticipant
+	*
+	* @param { ArgumentTypes.AccountId } account,
+	* @returns { Result<Result<Array<number>, ReturnTypes.Error>, ReturnTypes.LangError> }
+	*/
+	"verifyParticipant" (
+		account: ArgumentTypes.AccountId,
+		__options ? : GasLimit,
+	): Promise< QueryReturnType< Result<Result<Array<number>, ReturnTypes.Error>, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "verifyParticipant", [account], __options , (result) => { return handleReturnType(result, getTypeDescription(7, DATA_TYPE_DESCRIPTIONS)); });
+	}
+
+	/**
+	* createParticipant
+	*
+	* @param { ArgumentTypes.AccountId } account,
+	* @param { Array<(number | string | BN)> } hash,
+	* @returns { Result<Result<null, ReturnTypes.Error>, ReturnTypes.LangError> }
+	*/
+	"createParticipant" (
+		account: ArgumentTypes.AccountId,
+		hash: Array<(number | string | BN)>,
+		__options ? : GasLimit,
+	): Promise< QueryReturnType< Result<Result<null, ReturnTypes.Error>, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "createParticipant", [account, hash], __options , (result) => { return handleReturnType(result, getTypeDescription(10, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 }

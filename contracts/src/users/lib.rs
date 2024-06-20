@@ -1,5 +1,7 @@
 #![cfg_attr(not(feature = "std"), no_std, no_main)]
 
+pub use self::users::{Users, UsersRef};
+
 mod tests;
 
 /*
@@ -35,15 +37,36 @@ mod users {
 
     #[ink(event)]
     pub struct UserUpdated {
+        #[ink(topic)]
+        user_type: UserType,
+        #[ink(topic)]
         by: Option<AccountId>,
         updated_when: Option<u64>,
         user_hash: HashByte,
+    }
+
+    #[derive(scale::Encode, scale::Decode)]
+    #[cfg_attr(
+        feature = "std",
+        derive(
+            Debug,
+            Clone,
+            PartialEq,
+            Eq,
+            scale_info::TypeInfo,
+            ink::storage::traits::StorageLayout,
+        )
+    )]
+    pub enum UserType {
+        Organizer,
+        Participant,
     }
 
     #[ink(storage)]
     pub struct Users {
         organizers_by_id: Mapping<AccountId, HashByte>,
         participants_by_id: Mapping<AccountId, HashByte>,
+        organizers_collections: Mapping<AccountId, Vec<u8>>, // Vec<u8> represents a list of collection IDs
     }
 
     impl Users {
@@ -53,6 +76,7 @@ mod users {
             Self {
                 organizers_by_id: Mapping::new(),
                 participants_by_id: Mapping::new(),
+                organizers_collections: Mapping::new(),
             }
         }
 
@@ -82,10 +106,55 @@ mod users {
                         by: Some(self.env().caller()),
                         updated_when: Some(self.env().block_timestamp()),
                         user_hash: hash,
+                        user_type: UserType::Organizer,
                     });
                     Ok(())
                 }
             }
+        }
+
+        #[ink(message)]
+        pub fn verify_participant(&self, account: AccountId) -> Result<HashByte, Error> {
+            let existing_user = self.participants_by_id.get(&account);
+
+            match existing_user {
+                Some(hash) => Ok(hash),
+                None => Err(Error::UserNotFound),
+            }
+        }
+
+        #[ink(message)]
+        pub fn create_participant(
+            &mut self,
+            account: AccountId,
+            hash: HashByte,
+        ) -> Result<(), Error> {
+            let user = self.participants_by_id.get(&account);
+
+            match user {
+                Some(_) => Err(Error::UserExists),
+                None => {
+                    self.participants_by_id.insert(account, &hash);
+                    self.env().emit_event(UserUpdated {
+                        by: Some(self.env().caller()),
+                        updated_when: Some(self.env().block_timestamp()),
+                        user_hash: hash,
+                        user_type: UserType::Participant,
+                    });
+                    Ok(())
+                }
+            }
+        }
+
+        pub fn assign_collection(&mut self, account: AccountId, collection_id: u8) {
+            let collections = self
+                .organizers_collections
+                .get(&account)
+                .unwrap_or(Vec::new());
+            let mut new_collections = collections.clone();
+            new_collections.push(collection_id);
+            self.organizers_collections
+                .insert(account, &new_collections);
         }
     }
 

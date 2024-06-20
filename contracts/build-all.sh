@@ -3,6 +3,7 @@ set -eu
 
 # ENVIRONMENT VARIABLES
 CONTRACTS_DIR="${CONTRACTS_DIR:=./src}" # Base contract directory 
+FRONTEND_DIR="${FRONTEND_DIR:=../frontend}"
 DIR="${DIR:=./deployments}" # Output directory for build files
 
 # Copy command helper (cross-platform)
@@ -10,19 +11,23 @@ CP_CMD=$(command -v cp &> /dev/null && echo "cp" || echo "copy")
 
 # Determine all contracts under `$CONTRACTS_DIR`
 # contracts=($(find $CONTRACTS_DIR -maxdepth 1 -type d -exec test -f {}/Cargo.toml \; -print | xargs -n 1 basename))
-contracts=( "events" )
+contracts=( "users" "events" )
 
 # Build all contracts
 for i in "${contracts[@]}"
 do
   echo -e "\nBuilding '$CONTRACTS_DIR/$i/Cargo.toml'…"
-  cargo contract build --release --verbose --manifest-path $CONTRACTS_DIR/$i/Cargo.toml
+  pop build contract --path $CONTRACTS_DIR/$i
+  # cargo contract build --release --verbose --manifest-path $CONTRACTS_DIR/$i/Cargo.toml
 
   echo "Copying build files to '$DIR/$i/'…"
   mkdir -p $DIR/$i
-  $CP_CMD ./target/ink/$i/$i.contract $DIR/$i/
-  $CP_CMD ./target/ink/$i/$i.wasm $DIR/$i/
-  $CP_CMD ./target/ink/$i/$i.json $DIR/$i/
+  $CP_CMD ./ink/$i/$i.contract $DIR/$i/
+  $CP_CMD ./ink/$i/$i.wasm $DIR/$i/
+  $CP_CMD ./ink/$i/$i.json $DIR/$i/
+
+  mkdir -p $FRONTEND_DIR/src/deployments
+  $CP_CMD ./ink/$i/$i.json $FRONTEND_DIR/src/deployments/
 
   if [[ "$@" != *"--skip-types"* ]]; then
     echo "Generate types via typechain into './typed-contracts'…"

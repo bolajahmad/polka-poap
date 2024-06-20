@@ -29,15 +29,63 @@ export default class Methods {
 	}
 
 	/**
-	* flip
+	* verifyOrganizer
 	*
+	* @param { ArgumentTypes.AccountId } account,
 	*/
-	"flip" (
+	"verifyOrganizer" (
+		account: ArgumentTypes.AccountId,
 		__options ? : GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "flip", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "verifyOrganizer", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [], __options);
+		}, [account], __options);
+	}
+
+	/**
+	* createOrganizer
+	*
+	* @param { ArgumentTypes.AccountId } account,
+	* @param { Array<(number | string | BN)> } hash,
+	*/
+	"createOrganizer" (
+		account: ArgumentTypes.AccountId,
+		hash: Array<(number | string | BN)>,
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "createOrganizer", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [account, hash], __options);
+	}
+
+	/**
+	* verifyParticipant
+	*
+	* @param { ArgumentTypes.AccountId } account,
+	*/
+	"verifyParticipant" (
+		account: ArgumentTypes.AccountId,
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "verifyParticipant", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [account], __options);
+	}
+
+	/**
+	* createParticipant
+	*
+	* @param { ArgumentTypes.AccountId } account,
+	* @param { Array<(number | string | BN)> } hash,
+	*/
+	"createParticipant" (
+		account: ArgumentTypes.AccountId,
+		hash: Array<(number | string | BN)>,
+		__options ? : GasLimit,
+	){
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "createParticipant", (events: EventRecord) => {
+			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
+		}, [account, hash], __options);
 	}
 
 }

@@ -8,6 +8,7 @@ mod events {
     use ink::env::DefaultEnvironment;
     use ink::prelude::vec::Vec;
     use ink::storage::Mapping;
+    // use users::UsersRef;
 
     #[derive(Copy, Clone, Debug, PartialEq, Eq, scale::Encode, scale::Decode)]
     #[cfg_attr(feature = "std", derive(scale_info::TypeInfo))]
@@ -47,7 +48,7 @@ mod events {
 
     pub type HashByte = Vec<u8>;
     pub type EventId = u64;
-    pub type ContentIdentifier = u8;
+    pub type ContentIdentifier = Vec<u8>;
 
     #[derive(scale::Encode, scale::Decode)]
     #[cfg_attr(
@@ -65,7 +66,7 @@ mod events {
         event_date: u64,
         event_id: EventId,
         block_created: u32,
-        collection_id: u8,
+        collection_id: ContentIdentifier,
         created_by: AccountId,
         mint_date: u64,
     }
@@ -96,30 +97,31 @@ mod events {
         /// Stores the total number of events
         event_count: u64,
         event_id_to_activity: Mapping<EventId, Activity>,
-        collection_ids: Vec<u8>,
-        /// Stores a list of organizers on the platform
-        organizers: Mapping<AccountId, HashByte>,
-        participants: Mapping<AccountId, HashByte>,
+        collection_ids: Vec<ContentIdentifier>,
         event_to_participants: Mapping<EventId, EventParticipants>,
         // the poap NFT contract
         polkapoap: AccountId,
+        // the users management contract
+        users_contract: AccountId,
     }
 
     impl Events {
         /// Constructor that initializes the `bool` value to the given `init_value`.
         #[ink(constructor)]
-        pub fn new(polkapoap: AccountId) -> Self {
-            let organizers = Mapping::new();
-            let participants = Mapping::new();
+        pub fn new(users_contract: AccountId, polkapoap: AccountId) -> Self {
+            // let users_contract = UsersRef::new()
+            //     .code_hash(users_code_hash)
+            //     .endowment(0)
+            //     .salt_bytes([0xDE, 0xAD, 0xBE, 0xEF])
+            //     .instantiate();
 
             Self {
-                organizers,
-                participants,
                 event_count: 0,
                 collection_ids: Vec::new(),
                 event_id_to_activity: Mapping::new(),
                 event_to_participants: Mapping::new(),
                 polkapoap,
+                users_contract,
             }
         }
 
@@ -134,65 +136,35 @@ mod events {
         }
 
         #[ink(message)]
-        pub fn register_organizer(&mut self, organizer_id: AccountId, username: HashByte) {
-            // ensure the organizer emain does not already exist
-            assert!(
-                self.organizers.get(&organizer_id).is_none(),
-                "UserAlreadyRegistered"
-            );
-            // save organizer account and provided username to storage
-            self.organizers.insert(organizer_id, &username);
-            self.env().emit_event(UserUpdated {
-                user_id: organizer_id,
-                user_type: UserType::Organizer,
-                username: username,
-                new_user: true,
-            });
+        pub fn update_users_contract(&mut self, contract_account: AccountId) {
+            self.users_contract = contract_account;
         }
 
         #[ink(message)]
-        pub fn get_organizer(&self, organizer_id: AccountId) -> HashByte {
-            self.organizers.get(&organizer_id).unwrap()
-        }
-        #[ink(message)]
-        pub fn register_participant(
-            &mut self,
-            participant_id: AccountId,
-            username: HashByte,
-        ) -> Result<(), Error> {
-            assert!(
-                self.participants.get(&participant_id).is_none(),
-                "UserAlreadyRegistered"
-            );
-            // save organizer account and provided username to storage
-            self.participants.insert(participant_id, &username);
-            self.env().emit_event(UserUpdated {
-                user_id: participant_id,
-                user_type: UserType::Participant,
-                username: username,
-                new_user: true,
-            });
-            Ok(())
+        pub fn get_users_contract(&self) -> AccountId {
+            self.users_contract
         }
 
         #[ink(message)]
         pub fn create_new_event(
             &mut self,
-            collection_id: u8,
+            collection_id: ContentIdentifier,
             event_date: u64,
             mint_date: u64,
         ) -> Result<u64, Error> {
             let caller = self.env().caller();
             let current_block = self.env().block_number();
+
+            self.verify_organizer(&caller);
             assert!(
-                self.organizers.get(&caller).is_some(),
+                self.verify_organizer(&caller).is_some(),
                 "Must be an Organizer"
             );
 
             let collection_exists = self
                 .collection_ids
                 .iter()
-                .find(|collection: &&u8| collection == &&collection_id);
+                .find(|collection| collection == &&collection_id);
 
             match collection_exists {
                 Some(_) => return Err(Error::CollectionAlreadyCreated),
@@ -215,7 +187,7 @@ mod events {
                     self.event_to_participants
                         .insert(event.event_id, &participants);
                     self.event_id_to_activity.insert(event.event_id, &event);
-                    self.event_count = self.event_count.checked_sub(1).unwrap();
+                    self.event_count = event_length;
                     self.env().emit_event(ActivityUpdated {
                         updated_by: caller,
                         event_id: event.event_id,
@@ -235,7 +207,7 @@ mod events {
         #[ink(message)]
         pub fn update_mint_date(&mut self, mint_date: u64, event_id: EventId) -> Result<(), Error> {
             let caller = self.env().caller();
-            let organizer = self.organizers.get(caller);
+            let organizer = self.verify_organizer(&caller);
             let selected_event = self.event_id_to_activity.get(&event_id);
             assert!(
                 event_id <= self.event_count && selected_event.is_some(),
@@ -263,7 +235,10 @@ mod events {
         pub fn register_participant_for_event(&mut self, event_id: EventId) -> Result<(), Error> {
             let caller = self.env().caller();
             // caller must be a registered participant
-            assert!(self.participants.get(&caller).is_some(), "UserDoesNotExist");
+            assert!(
+                self.verify_participant(&caller).is_some(),
+                "UserDoesNotExist"
+            );
             let selected_event = self.event_id_to_activity.get(&event_id);
             assert!(
                 event_id <= self.event_count && selected_event.is_some(),
@@ -310,10 +285,10 @@ mod events {
             self.ensure_has_not_minted(&event_id, &caller);
 
             let selected_activity = self.event_id_to_activity.get(&event_id).unwrap();
-            self.is_new_collection(selected_activity.collection_id);
+            self.is_new_collection(&selected_activity.collection_id);
 
             // mint NFT to user
-            let result = self.execute_mint_message(caller, selected_activity.collection_id);
+            let result = self.execute_mint_message(caller, &selected_activity.collection_id);
             match result {
                 true => {
                     let mut event_participants = self.event_to_participants.get(&event_id).unwrap();
@@ -330,11 +305,11 @@ mod events {
             self.event_to_participants.get(&event_id).unwrap()
         }
 
-        pub fn is_new_collection(&self, collection_id: ContentIdentifier) -> bool {
+        pub fn is_new_collection(&self, collection_id: &ContentIdentifier) -> bool {
             let collection_exists = self
                 .collection_ids
                 .iter()
-                .find(|collection: &&u8| collection == &&collection_id);
+                .find(|collection| collection == &collection_id);
 
             match collection_exists {
                 Some(_) => true,
@@ -345,7 +320,7 @@ mod events {
         pub fn execute_mint_message(
             &self,
             owner: AccountId,
-            proposal_cid: ContentIdentifier,
+            proposal_cid: &ContentIdentifier,
         ) -> bool {
             let mint_result = build_call::<DefaultEnvironment>()
                 .call(self.polkapoap)
@@ -353,7 +328,7 @@ mod events {
                 .exec_input(
                     ExecutionInput::new(Selector::new(ink::selector_bytes!("mint_property")))
                         .push_arg(&owner)
-                        .push_arg(&proposal_cid),
+                        .push_arg(proposal_cid),
                 )
                 .returns::<()>()
                 .try_invoke();
@@ -393,6 +368,40 @@ mod events {
                     .any(|&x| x == *participant),
                 "UserAlreadyMinted"
             )
+        }
+
+        fn verify_organizer(&self, organizer: &AccountId) -> Option<HashByte> {
+            let result = build_call::<DefaultEnvironment>()
+                .call(self.users_contract)
+                .gas_limit(0)
+                .exec_input(
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!("verify_organizer")))
+                        .push_arg(organizer),
+                )
+                .returns::<HashByte>()
+                .try_invoke();
+
+            match result {
+                Ok(user) => Some(user.unwrap()),
+                _ => None,
+            }
+        }
+
+        fn verify_participant(&self, participant: &AccountId) -> Option<HashByte> {
+            let result = build_call::<DefaultEnvironment>()
+                .call(self.users_contract)
+                .gas_limit(0)
+                .exec_input(
+                    ExecutionInput::new(Selector::new(ink::selector_bytes!("verify_participant")))
+                        .push_arg(participant),
+                )
+                .returns::<HashByte>()
+                .try_invoke();
+
+            match result {
+                Ok(user) => Some(user.unwrap()),
+                _ => None,
+            }
         }
     }
 

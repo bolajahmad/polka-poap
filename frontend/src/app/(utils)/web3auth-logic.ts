@@ -75,7 +75,7 @@ export class SubstrateRPC {
     }
   }
 
-  private async getKeyring() {
+  async getKeyring() {
     const { Keyring } = await import('@polkadot/keyring')
     const { cryptoWaitReady } = await import('@polkadot/util-crypto')
     await cryptoWaitReady()

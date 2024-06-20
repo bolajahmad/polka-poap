@@ -60,66 +60,45 @@ export default class Methods {
 	"getTokenContract" (
 		__options: GasLimit,
 	): Promise< QueryReturnType< Result<ReturnTypes.AccountId, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "getTokenContract", [], __options, (result) => { return handleReturnType(result, getTypeDescription(10, DATA_TYPE_DESCRIPTIONS)); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "getTokenContract", [], __options, (result) => { return handleReturnType(result, getTypeDescription(11, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
-	* registerOrganizer
+	* updateUsersContract
 	*
-	* @param { ArgumentTypes.AccountId } organizerId,
-	* @param { Array<(number | string | BN)> } username,
+	* @param { ArgumentTypes.AccountId } contractAccount,
 	* @returns { void }
 	*/
-	"registerOrganizer" (
-		organizerId: ArgumentTypes.AccountId,
-		username: Array<(number | string | BN)>,
+	"updateUsersContract" (
+		contractAccount: ArgumentTypes.AccountId,
 		__options: GasLimit,
 	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerOrganizer", (events: EventRecord) => {
+		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "updateUsersContract", (events: EventRecord) => {
 			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [organizerId, username], __options);
+		}, [contractAccount], __options);
 	}
 
 	/**
-	* getOrganizer
+	* getUsersContract
 	*
-	* @param { ArgumentTypes.AccountId } organizerId,
-	* @returns { Result<Array<number>, ReturnTypes.LangError> }
+	* @returns { Result<ReturnTypes.AccountId, ReturnTypes.LangError> }
 	*/
-	"getOrganizer" (
-		organizerId: ArgumentTypes.AccountId,
+	"getUsersContract" (
 		__options: GasLimit,
-	): Promise< QueryReturnType< Result<Array<number>, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "getOrganizer", [organizerId], __options, (result) => { return handleReturnType(result, getTypeDescription(11, DATA_TYPE_DESCRIPTIONS)); });
-	}
-
-	/**
-	* registerParticipant
-	*
-	* @param { ArgumentTypes.AccountId } participantId,
-	* @param { Array<(number | string | BN)> } username,
-	* @returns { void }
-	*/
-	"registerParticipant" (
-		participantId: ArgumentTypes.AccountId,
-		username: Array<(number | string | BN)>,
-		__options: GasLimit,
-	){
-		return txSignAndSend( this.__apiPromise, this.__nativeContract, this.__keyringPair, "registerParticipant", (events: EventRecord) => {
-			return decodeEvents(events, this.__nativeContract, EVENT_DATA_TYPE_DESCRIPTIONS);
-		}, [participantId, username], __options);
+	): Promise< QueryReturnType< Result<ReturnTypes.AccountId, ReturnTypes.LangError> > >{
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "getUsersContract", [], __options, (result) => { return handleReturnType(result, getTypeDescription(11, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**
 	* createNewEvent
 	*
-	* @param { (number | string | BN) } collectionId,
+	* @param { Array<(number | string | BN)> } collectionId,
 	* @param { (number | string | BN) } eventDate,
 	* @param { (number | string | BN) } mintDate,
 	* @returns { void }
 	*/
 	"createNewEvent" (
-		collectionId: (number | string | BN),
+		collectionId: Array<(number | string | BN)>,
 		eventDate: (number | string | BN),
 		mintDate: (number | string | BN),
 		__options: GasLimit,
@@ -139,7 +118,7 @@ export default class Methods {
 		eventId: (number | string | BN),
 		__options: GasLimit,
 	): Promise< QueryReturnType< Result<ReturnTypes.Activity, ReturnTypes.LangError> > >{
-		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "getEventData", [eventId], __options, (result) => { return handleReturnType(result, getTypeDescription(17, DATA_TYPE_DESCRIPTIONS)); });
+		return queryOkJSON( this.__apiPromise, this.__nativeContract, this.__callerAddress, "getEventData", [eventId], __options, (result) => { return handleReturnType(result, getTypeDescription(15, DATA_TYPE_DESCRIPTIONS)); });
 	}
 
 	/**

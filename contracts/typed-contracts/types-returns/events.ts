@@ -17,7 +17,7 @@ export type Activity = {
 	eventDate: number,
 	eventId: number,
 	blockCreated: number,
-	collectionId: number,
+	collectionId: Array<number>,
 	createdBy: AccountId,
 	mintDate: number
 }
