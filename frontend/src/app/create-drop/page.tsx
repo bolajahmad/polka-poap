@@ -3,31 +3,31 @@ import { useContractInteractions } from "@/hooks/useContractInteractions";
 import { AllowedUsers } from "@/models";
 import {
   Box,
-  Button,
   Container,
-  Heading,
-  Stack,
-  Text
+  Heading
 } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CreatePOAPDataForm } from "../(components)/(forms)/create-poap-form";
 import { useWalletStore } from "../(context)/(store)/wallet";
 import { useWeb3Auth } from "../(context)/(web3-auth-provider)/web3-auth-provider";
+import PromptAuthenticateUserView from "./(components)/prompt-authenticate-user";
 
 export default function CreatePOAPDrop() {
   const navigate = useRouter();
-  const [isLoading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { login } = useWeb3Auth();
   const { connect } = useWalletStore((state) => state);
-  const [authenticatedUser, setUser] = useState<any>();
+  const [authenticatedUser, setAuthenticatedUser] = useState<any>();
   // const { registerNewUser } = useUsersContract();
   const {registerUser, verifyUser} = useContractInteractions();
 
   /// handle signin function
   /// TODO: log users in using Polkadot wallet (or web3auth)
+  /// After connect wallet; check if wallet is a linked wallet
+  /// This can be checked on the user contract's validate_linked_account
   const handleUserSignin = async () => {
-      setLoading(true);
+      setIsLoading(true);
     try {
       const user = await login();
 
@@ -43,11 +43,11 @@ export default function CreatePOAPDrop() {
       );
       
       if (result) {
-        setUser(user); 
-      connect(user?.walletAddress as string);
+        setAuthenticatedUser(user); 
+        connect(user?.walletAddress as string);
       }
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   };
 
@@ -62,30 +62,6 @@ export default function CreatePOAPDrop() {
       </Box>
     </Container>
   ) : (
-    <Container h="screen" pt="40">
-      <Heading as="h2" mb="20">
-        Create a new POAP Drop
-      </Heading>
-
-      <Box>
-        <Stack>
-          <Text color="gray" fontWeight="bold" fontSize="20">
-            Choose how you&apos;d like to
-          </Text>
-
-          <Box w="100%">
-            <Button
-              colorScheme="green"
-              width="100%"
-              size="lg"
-              type="button"
-              onClick={() => handleUserSignin()}
-            >
-              Sign In
-            </Button>
-          </Box>
-        </Stack>
-      </Box>
-    </Container>
+    <PromptAuthenticateUserView handleSignIn={handleUserSignin} />
   );
 }

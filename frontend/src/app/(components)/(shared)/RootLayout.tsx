@@ -36,7 +36,7 @@ export function PageLayout({ children }: PropsWithChildren) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-6 h-full">
+      <CardContent className="h-full">
         {children}
       </CardContent>
     </Card>
