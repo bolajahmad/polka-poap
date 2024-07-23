@@ -14,6 +14,7 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { useInkathon } from "@scio-labs/use-inkathon";
+import { useState } from "react";
 import { FiCheck, FiX } from "react-icons/fi";
 import AnimatedTextIntro from "./AnimatedTextDisplay";
 
@@ -24,11 +25,12 @@ type Props = {
   connectedWallet?: string;
 };
 
-const PromptAuthenticateUserView = ({ handleSignIn, authenticatedUser, connectedWallet, logout }: Props) => {
+const PromptAuthenticateUserView = ({ handleSignIn, authenticatedUser, logout }: Props) => {
   const displayName = authenticatedUser?.email ?? authenticatedUser?.name;
-  const { connect } = useInkathon();
+  const { activeAccount } = useInkathon();
+  const [connectedWallet, setConnectedWallet] = useState<"" | "External" | "Generated">("")
 
-  console.log({ authenticatedUser })
+  console.log({ authenticatedUser, activeAccount });
 
   return (
     <Box h="100%" w="100%">
@@ -179,15 +181,28 @@ const PromptAuthenticateUserView = ({ handleSignIn, authenticatedUser, connected
                           <Stack gap={6} mt={4}>
                             <Text className="text-slate-400 text-md italic font-semibold">Generated Wallet:</Text>
 
-                            <Flex alignItems="center" gap="5">
+                            <Flex alignItems="center" justifyContent="flex-start" gap="5">
                               <Text>{truncateTextOrHash((authenticatedUser as any)?.address ?? "", 6)}</Text>
-                              <Button variant="outline" className="!border-transparent outline-none">Use <FiCheck color="green" /></Button>
+                              <Button onClick={() => setConnectedWallet("Generated")} colorScheme="teal" variant={connectedWallet == "Generated" ? "solid" : "outline"} className="!border-transparent outline-none">
+                                {connectedWallet == "Generated" ? "Using" : "Use"}
+                                <FiCheck color={connectedWallet === "Generated" ? "white" : "green"} className="ml-3" />
+                              </Button>
                             </Flex>
 
                             
-                            <ConnectWalletButton />
+                            <Flex className="mr-auto w-fit" alignItems="center" justifyContent="flex-start" gap={5}>
+                              <ConnectWalletButton onConnected={() => setConnectedWallet("External")} />
+                              {activeAccount ? <Button onClick={() => setConnectedWallet("External")} colorScheme="teal" variant={connectedWallet == "External" ? "solid" : "outline"} className="!border-transparent outline-none">
+                                {connectedWallet == "External" ? "Using" : "Use"}
+                                <FiCheck color={connectedWallet === "External" ? "white" : "green"} className="ml-3" />
+                              </Button> : null}
+                            </Flex>
                           </Stack>
                         </Box> : null}
+
+                        {connectedWallet ? <Button colorScheme="blue" size="lg">
+                          Complete
+                        </Button> : null}
                       </Stack>
                     </Box>
                   </Flex>

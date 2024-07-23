@@ -10,7 +10,12 @@ import toast from "react-hot-toast";
 import { AiOutlineCheckCircle, AiOutlineDisconnect } from "react-icons/ai";
 import { FiChevronDown, FiExternalLink } from "react-icons/fi";
 
-export const ConnectWalletButton = () => {
+type Props = {
+    onConnected?: () => void
+    onDisconnect?: () => void
+}
+
+export const ConnectWalletButton = ({ onConnected, onDisconnect }: Props) => {
     const { activeAccount, connect, activeChain, switchActiveChain, accounts, setActiveAccount, disconnect } = useInkathon();
 
     const supportedChains = useMemo(() => 
@@ -48,6 +53,7 @@ export const ConnectWalletButton = () => {
                         className="cursor-pointer"
                         onClick={() => {
                           connect?.(undefined, wallet)
+                            .then(() => onConnected?.())
                         }}
                       >
                         {wallet.name}
@@ -147,7 +153,10 @@ export const ConnectWalletButton = () => {
 
                     {/* Disconnect Button */}
                     <MenuDivider />
-                    <MenuItem className="cursor-pointer" onClick={() => disconnect?.()}>
+                    <MenuItem className="cursor-pointer" onClick={() => {
+                        disconnect?.();
+                        onDisconnect?.();
+                    }}>
                         <div className="flex gap-2">
                         <AiOutlineDisconnect size={18} />
                         Disconnect

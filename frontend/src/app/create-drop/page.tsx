@@ -24,17 +24,6 @@ export default function CreatePOAPDrop() {
       setIsLoading(true);
     try {
       const user = await login();
-
-      console.log({ user})
-      // call users contract to login as an organizer.
-      // if organizer exists, then allow login
-      // if organizer does not exist, create and allow login
-      // const result = await verifyUser(
-      //   AllowedUsers.Organizer, 
-      //   (user as any)?.address as string, 
-      //   user?.encodedSecretKey as string,
-      //   // user?.email ?? user?.name ?? '', 
-      // );
       
       if (user) {
         setAuthenticatedUser(user); 
