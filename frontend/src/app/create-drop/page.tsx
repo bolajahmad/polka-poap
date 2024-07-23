@@ -1,14 +1,8 @@
 "use client";
 import { useContractInteractions } from "@/hooks/useContractInteractions";
-import { AllowedUsers } from "@/models";
-import {
-  Box,
-  Container,
-  Heading
-} from "@chakra-ui/react";
+import { OpenloginUserInfo } from "@/models";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { CreatePOAPDataForm } from "../(components)/(forms)/create-poap-form";
 import { useWalletStore } from "../(context)/(store)/wallet";
 import { useWeb3Auth } from "../(context)/(web3-auth-provider)/web3-auth-provider";
 import PromptAuthenticateUserView from "./(components)/prompt-authenticate-user";
@@ -16,9 +10,9 @@ import PromptAuthenticateUserView from "./(components)/prompt-authenticate-user"
 export default function CreatePOAPDrop() {
   const navigate = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useWeb3Auth();
+  const { login, logout } = useWeb3Auth();
   const { connect } = useWalletStore((state) => state);
-  const [authenticatedUser, setAuthenticatedUser] = useState<any>();
+  const [authenticatedUser, setAuthenticatedUser] = useState<Partial<OpenloginUserInfo>>();
   // const { registerNewUser } = useUsersContract();
   const {registerUser, verifyUser} = useContractInteractions();
 
@@ -35,33 +29,39 @@ export default function CreatePOAPDrop() {
       // call users contract to login as an organizer.
       // if organizer exists, then allow login
       // if organizer does not exist, create and allow login
-      const result = await verifyUser(
-        AllowedUsers.Organizer, 
-        (user as any)?.address as string, 
-        user?.encodedSecretKey as string,
-        // user?.email ?? user?.name ?? '', 
-      );
+      // const result = await verifyUser(
+      //   AllowedUsers.Organizer, 
+      //   (user as any)?.address as string, 
+      //   user?.encodedSecretKey as string,
+      //   // user?.email ?? user?.name ?? '', 
+      // );
       
-      if (result) {
+      if (user) {
         setAuthenticatedUser(user); 
-        connect(user?.walletAddress as string);
+        connect((user as any)?.address as string);
       }
     } finally {
       setIsLoading(false)
     }
   };
 
-  return authenticatedUser && !isLoading ? (
-    <Container h="screen" w="100%" maxW="100%" px={40} py="30">
-      <Heading textAlign="center" color="blue">
-        Provide information about your POAP Drop
-      </Heading>
-
-      <Box w="100%">
-        <CreatePOAPDataForm />
-      </Box>
-    </Container>
-  ) : (
-    <PromptAuthenticateUserView handleSignIn={handleUserSignin} />
+  return (
+    <PromptAuthenticateUserView 
+      authenticatedUser={authenticatedUser} 
+      logout={logout}
+      connectedWallet={authenticatedUser?.walletAddress} 
+      handleSignIn={handleUserSignin} 
+    />
   );
 }
+// authenticatedUser && !isLoading ? (
+//   <Container h="screen" w="100%" maxW="100%" px={40} py="30">
+//     <Heading textAlign="center" color="blue">
+//       Provide information about your POAP Drop
+//     </Heading>
+
+//     <Box w="100%">
+//       <CreatePOAPDataForm />
+//     </Box>
+//   </Container>
+// ) : 

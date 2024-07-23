@@ -1,20 +1,35 @@
+'use client';
+
+import { ConnectWalletButton } from "@/app/(components)/(usables)/ConnectWallet";
+import { truncateTextOrHash } from "@/app/(utils)/general-helpers";
+import { type OpenloginUserInfo } from "@/models";
 import {
-    Box,
-    Button,
-    Center,
-    Divider,
-    Flex,
-    Heading,
-    Stack,
-    Text,
+  Box,
+  Button,
+  Center,
+  Divider,
+  Flex,
+  Heading,
+  Stack,
+  Text,
 } from "@chakra-ui/react";
+import { useInkathon } from "@scio-labs/use-inkathon";
+import { FiCheck, FiX } from "react-icons/fi";
 import AnimatedTextIntro from "./AnimatedTextDisplay";
 
 type Props = {
   handleSignIn: () => Promise<void>;
+  logout: () => Promise<void>;
+  authenticatedUser?: Partial<OpenloginUserInfo>;
+  connectedWallet?: string;
 };
 
-const PromptAuthenticateUserView = ({ handleSignIn }: Props) => {
+const PromptAuthenticateUserView = ({ handleSignIn, authenticatedUser, connectedWallet, logout }: Props) => {
+  const displayName = authenticatedUser?.email ?? authenticatedUser?.name;
+  const { connect } = useInkathon();
+
+  console.log({ authenticatedUser })
+
   return (
     <Box h="100%" w="100%">
       <div className="w-full h-full">
@@ -26,7 +41,7 @@ const PromptAuthenticateUserView = ({ handleSignIn }: Props) => {
           <div className="flex-1 w-full">
             <Center h="100%">
               <Box>
-              <Text as="p" mb="20" className="text-lg flex items-center gap-2 font-bold text-[#5e58a5]">
+                <Box mb="20" className="text-lg flex items-center gap-2 font-bold text-[#5e58a5]">
                   <svg
                     width="39"
                     height="48"
@@ -117,39 +132,62 @@ const PromptAuthenticateUserView = ({ handleSignIn }: Props) => {
                     ></path>
                   </svg>
                   <Divider orientation="vertical" h="50px" />
-                  <span>Drops</span>
-                </Text>
+                  <Text as="span">Drops</Text>
+                </Box>
 
                 <Heading as="h2" mb="20">
                   <span>Create a new POAP Drop</span>
                 </Heading>
 
                 <Box>
-                  <Flex direction="column">
+                  <Flex direction="column" gap={10}>
                     <Text color="gray" fontWeight="bold" fontSize="20">
                       Complete the actions below to sign in
                     </Text>
 
                     <Box w="100%">
-                      <Stack direction="column">
-                        <Button
-                            colorScheme="green"
+                      <Stack direction="column" gap={5}>
+                        {authenticatedUser ? (
+                          <Stack>
+                            <Text className="text-slate-400 text-md italic font-semibold">
+                              Signed is as:
+                            </Text>
+
+                            <Flex gap={10} justifyContent="flex-start" alignItems="center">
+                              <Text className="font-bold text-lg text-ellipsis text-slate-800">{displayName}</Text>
+
+                              <Button onClick={() => logout()} variant="outline" className="!border-transparent outline-none">
+                                Log out
+                                <FiX className="ml-2" color="red" size={20} />
+                              </Button>
+                            </Flex>
+                          </Stack>
+                        ) : <Button
+                            colorScheme="cyan"
                             width="100%"
-                            size="lg"
+                            size="md"
                             type="button"
+                            color="white"
                             onClick={() => handleSignIn()}
                         >
                             Sign In
-                        </Button>
+                        </Button>}
 
-                        <Button
-                            colorScheme="green"
-                            width="100%"
-                            size="lg"
-                            type="button"
-                        >
-                            Connect Wallet
-                        </Button>
+                        {authenticatedUser ? <Box mt={10}>
+                          <Heading as="h4" fontSize={20} className="text-slate-400 font-semibold">Choose a Wallet</Heading>
+
+                          <Stack gap={6} mt={4}>
+                            <Text className="text-slate-400 text-md italic font-semibold">Generated Wallet:</Text>
+
+                            <Flex alignItems="center" gap="5">
+                              <Text>{truncateTextOrHash((authenticatedUser as any)?.address ?? "", 6)}</Text>
+                              <Button variant="outline" className="!border-transparent outline-none">Use <FiCheck color="green" /></Button>
+                            </Flex>
+
+                            
+                            <ConnectWalletButton />
+                          </Stack>
+                        </Box> : null}
                       </Stack>
                     </Box>
                   </Flex>
